@@ -1,0 +1,11 @@
+/home/dogelkek/RiderProjects/WMS-Backend/src/Warehouse.Domain/bin/Debug/net10.0/Warehouse.Domain.deps.json
+/home/dogelkek/RiderProjects/WMS-Backend/src/Warehouse.Domain/bin/Debug/net10.0/Warehouse.Domain.dll
+/home/dogelkek/RiderProjects/WMS-Backend/src/Warehouse.Domain/bin/Debug/net10.0/Warehouse.Domain.pdb
+/home/dogelkek/RiderProjects/WMS-Backend/src/Warehouse.Domain/obj/Debug/net10.0/Warehouse.Domain.GeneratedMSBuildEditorConfig.editorconfig
+/home/dogelkek/RiderProjects/WMS-Backend/src/Warehouse.Domain/obj/Debug/net10.0/Warehouse.Domain.AssemblyInfoInputs.cache
+/home/dogelkek/RiderProjects/WMS-Backend/src/Warehouse.Domain/obj/Debug/net10.0/Warehouse.Domain.AssemblyInfo.cs
+/home/dogelkek/RiderProjects/WMS-Backend/src/Warehouse.Domain/obj/Debug/net10.0/Warehouse.Domain.csproj.CoreCompileInputs.cache
+/home/dogelkek/RiderProjects/WMS-Backend/src/Warehouse.Domain/obj/Debug/net10.0/Warehouse.Domain.dll
+/home/dogelkek/RiderProjects/WMS-Backend/src/Warehouse.Domain/obj/Debug/net10.0/refint/Warehouse.Domain.dll
+/home/dogelkek/RiderProjects/WMS-Backend/src/Warehouse.Domain/obj/Debug/net10.0/Warehouse.Domain.pdb
+/home/dogelkek/RiderProjects/WMS-Backend/src/Warehouse.Domain/obj/Debug/net10.0/ref/Warehouse.Domain.dll

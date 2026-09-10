@@ -1,0 +1,15 @@
+/home/dogelkek/RiderProjects/WMS-Backend/src/Warehouse.Application/bin/Debug/net10.0/Warehouse.Application.deps.json
+/home/dogelkek/RiderProjects/WMS-Backend/src/Warehouse.Application/bin/Debug/net10.0/Warehouse.Application.dll
+/home/dogelkek/RiderProjects/WMS-Backend/src/Warehouse.Application/bin/Debug/net10.0/Warehouse.Application.pdb
+/home/dogelkek/RiderProjects/WMS-Backend/src/Warehouse.Application/bin/Debug/net10.0/Warehouse.Domain.dll
+/home/dogelkek/RiderProjects/WMS-Backend/src/Warehouse.Application/bin/Debug/net10.0/Warehouse.Domain.pdb
+/home/dogelkek/RiderProjects/WMS-Backend/src/Warehouse.Application/obj/Debug/net10.0/Warehouse.Application.csproj.AssemblyReference.cache
+/home/dogelkek/RiderProjects/WMS-Backend/src/Warehouse.Application/obj/Debug/net10.0/Warehouse.Application.GeneratedMSBuildEditorConfig.editorconfig
+/home/dogelkek/RiderProjects/WMS-Backend/src/Warehouse.Application/obj/Debug/net10.0/Warehouse.Application.AssemblyInfoInputs.cache
+/home/dogelkek/RiderProjects/WMS-Backend/src/Warehouse.Application/obj/Debug/net10.0/Warehouse.Application.AssemblyInfo.cs
+/home/dogelkek/RiderProjects/WMS-Backend/src/Warehouse.Application/obj/Debug/net10.0/Warehouse.Application.csproj.CoreCompileInputs.cache
+/home/dogelkek/RiderProjects/WMS-Backend/src/Warehouse.Application/obj/Debug/net10.0/Warehous.D471AD2D.Up2Date
+/home/dogelkek/RiderProjects/WMS-Backend/src/Warehouse.Application/obj/Debug/net10.0/Warehouse.Application.dll
+/home/dogelkek/RiderProjects/WMS-Backend/src/Warehouse.Application/obj/Debug/net10.0/refint/Warehouse.Application.dll
+/home/dogelkek/RiderProjects/WMS-Backend/src/Warehouse.Application/obj/Debug/net10.0/Warehouse.Application.pdb
+/home/dogelkek/RiderProjects/WMS-Backend/src/Warehouse.Application/obj/Debug/net10.0/ref/Warehouse.Application.dll
