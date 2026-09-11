@@ -27,21 +27,6 @@ public class WarehouseDbContext : DbContext
             entity.Property(p => p.Ean)
                 .IsRequired()
                 .HasMaxLength(13);
-
-            entity.HasData(
-                new
-                {
-                    Id = Guid.Parse("11111111-1111-1111-1111-111111111111"),
-                    Name = "Laptop",
-                    Ean = "5901234567890"
-                },
-                new
-                {
-                    Id = Guid.Parse("22222222-2222-2222-2222-222222222222"),
-                    Name = "Monitor",
-                    Ean = "5909876543210"
-                }
-            );
         });
     }
 }

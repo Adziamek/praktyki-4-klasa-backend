@@ -9,3 +9,4 @@
 /home/dogelkek/RiderProjects/WMS-Backend/src/Warehouse.Domain/obj/Debug/net10.0/refint/Warehouse.Domain.dll
 /home/dogelkek/RiderProjects/WMS-Backend/src/Warehouse.Domain/obj/Debug/net10.0/Warehouse.Domain.pdb
 /home/dogelkek/RiderProjects/WMS-Backend/src/Warehouse.Domain/obj/Debug/net10.0/ref/Warehouse.Domain.dll
+/home/dogelkek/RiderProjects/WMS-Backend/src/Warehouse.Domain/obj/Debug/net10.0/Warehouse.Domain.sourcelink.json
