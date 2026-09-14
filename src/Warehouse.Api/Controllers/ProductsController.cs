@@ -7,17 +7,17 @@ namespace Warehouse.Api.Controllers;
 [Route("api/products")]
 public class ProductsController : ControllerBase
 {
-    private readonly IProductRepository _productRepository;
+    private readonly IProductService _productService;
 
-    public ProductsController(IProductRepository productRepository)
+    public ProductsController(IProductService productService)
     {
-        _productRepository = productRepository;
+        _productService = productService;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetProducts()
     {
-        var products = await _productRepository.GetAllAsync();
+        var products = await _productService.GetAllAsync();
 
         return Ok(products);
     }

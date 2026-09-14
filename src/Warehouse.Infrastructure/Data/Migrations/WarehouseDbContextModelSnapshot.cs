@@ -42,6 +42,57 @@ namespace Warehouse.Infrastructure.Data.Migrations
 
                     b.ToTable("Products");
                 });
+
+            modelBuilder.Entity("Warehouse.Domain.Entities.User", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<bool>("Role")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("Username")
+                        .IsUnique();
+
+                    b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(2026, 9, 14, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Email = "admin@example.com",
+                            PasswordHash = "xd",
+                            Role = true,
+                            Username = "Admin"
+                        });
+                });
 #pragma warning restore 612, 618
         }
     }

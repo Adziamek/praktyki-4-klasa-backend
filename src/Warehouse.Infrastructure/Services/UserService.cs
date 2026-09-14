@@ -5,18 +5,18 @@ using Warehouse.Infrastructure.Data;
 
 namespace Warehouse.Infrastructure.Services;
 
-public class ProductService : IProductService
+public class UserService : IUserService
 {
     private readonly WarehouseDbContext _context;
 
-    public ProductService(WarehouseDbContext context)
+    public UserService(WarehouseDbContext context)
     {
         _context = context;
     }
 
-    public async Task<IReadOnlyList<Product>> GetAllAsync()
+    public async Task<IReadOnlyList<User>> GetAllAsync()
     {
-        return await _context.Products
+        return await _context.Users
             .AsNoTracking()
             .ToListAsync();
     }
