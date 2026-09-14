@@ -1,4 +1,10 @@
-.idea/
+#Project
 bin/
 obj/
 appsettings.Development.json
+#IDE
+.vscode/*.
+.vs
+.idea/
+#System
+.DS_Store

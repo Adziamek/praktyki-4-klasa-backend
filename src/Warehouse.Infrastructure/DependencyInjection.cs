@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Warehouse.Application.Interfaces;
 using Warehouse.Infrastructure.Data;
-using Warehouse.Infrastructure.Repositories;
+using Warehouse.Infrastructure.Services;
 
 namespace Warehouse.Infrastructure;
 
@@ -15,7 +15,7 @@ public static class DependencyInjection
         services.AddDbContext<WarehouseDbContext>(options =>
             options.UseNpgsql(connectionString));
 
-        services.AddScoped<IProductRepository, ProductRepository>();
+        services.AddScoped<IProductRepository, ProductService>();
 
         return services;
     }
