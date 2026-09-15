@@ -17,14 +17,17 @@ public class UsersController : ControllerBase
     private readonly WarehouseDbContext _context;
     private readonly IPasswordHasher<User> _passwordHasher;
     private readonly IConfiguration _configuration;
+    private readonly ILogger<UsersController> _logger;
     public UsersController(
         WarehouseDbContext context,
         IPasswordHasher<User> passwordHasher,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        ILogger<UsersController> logger)
     {
         _context = context;
         _passwordHasher = passwordHasher;
         _configuration = configuration;
+        _logger = logger;
     }
 
     // GET: api/User/5
@@ -37,9 +40,7 @@ public class UsersController : ControllerBase
         var user = await _context.Users.FindAsync(id);
 
         if (user == null)
-        {
             return NotFound();
-        }
 
         return user;
     }
@@ -48,6 +49,9 @@ public class UsersController : ControllerBase
     [HttpGet("me")]
     public IActionResult GetMe()
     {
+        var token = HttpContext.Request.Headers.Authorization.ToString();
+        _logger.LogDebug("JWT Token: {token}", token);
+
         var id = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var username = User.FindFirstValue(ClaimTypes.Name);
         var role = User.FindFirstValue(ClaimTypes.Role);
@@ -174,9 +178,7 @@ public class UsersController : ControllerBase
     {
         var user = await _context.Users.FindAsync(id);
         if (user == null)
-        {
             return NotFound();
-        }
 
         _context.Users.Remove(user);
         await _context.SaveChangesAsync();
