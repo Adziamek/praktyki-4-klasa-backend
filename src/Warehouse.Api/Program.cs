@@ -35,7 +35,7 @@ builder.Services.AddInfrastructure(connectionString);
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 builder.Services.AddFluentValidationAutoValidation();
-builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+builder.Services.AddValidatorsFromAssemblyContaining<RegisterUserDtoValidator>();
 
 var jwtKey = builder.Configuration["Jwt:Key"]
     ?? throw new InvalidOperationException("JWT key not found.");
@@ -77,13 +77,13 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+using (var scope = app.Services.CreateScope())
 {
-    app.MapOpenApi();
-    app.MapScalarApiReference();
+    var db = scope.ServiceProvider.GetRequiredService<WarehouseDbContext>();
+    db.Database.Migrate();
 }
 
-using (var scope = app.Services.CreateAsyncScope())
+await using (var scope = app.Services.CreateAsyncScope())
 {
     var services = scope.ServiceProvider;
 
@@ -96,6 +96,12 @@ using (var scope = app.Services.CreateAsyncScope())
         configuration,
         passwordHasher
     );
+}
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+    app.MapScalarApiReference();
 }
 
 // Middleware
@@ -112,3 +118,5 @@ app.UseStaticFiles();
 app.MapControllers();
 
 app.Run();
+
+

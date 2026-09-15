@@ -69,7 +69,7 @@ public class UsersController : ControllerBase
     [EndpointSummary("Checks user username and password")]
     [ProducesResponseType(typeof(User), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<User>> Login(RegisterUserDto dto)
+    public async Task<ActionResult<User>> Login(LoginUserDto dto)
     {
         var user = await _context.Users.FirstOrDefaultAsync(x => x.Username == dto.Username);
 

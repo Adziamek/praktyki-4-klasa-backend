@@ -7,16 +7,29 @@ public class RegisterUserDtoValidator : AbstractValidator<RegisterUserDto>
     {
         RuleFor(x => x.Username)
             .NotEmpty()
-            .WithMessage("Username is required.") 
+            .WithMessage("Username is required.")
+            .WithErrorCode("UsernameRequired")
             .MinimumLength(3)
             .WithMessage("Username must contain at least 3 characters.")
+            .WithErrorCode("UsernameTooShort")
             .MaximumLength(50)
-            .WithMessage("Username cannnot contain more than 50 characters.");
+            .WithMessage("Username cannot contain more than 50 characters.")
+            .WithErrorCode("UsernameTooLong");
 
         RuleFor(x => x.Password)
             .NotEmpty()
-            .WithMessage("Password is required")
+            .WithMessage("Password is required.")
+            .WithErrorCode("PasswordRequired")
             .MinimumLength(5)
-            .WithMessage("Password must contain at least 8 characters.");
+            .WithMessage("Password must contain at least 5 characters.")
+            .WithErrorCode("PasswordTooShort");
+
+        RuleFor(x => x.Email)
+            .NotEmpty()
+            .WithMessage("Email is required.")
+            .WithErrorCode("EmailRequired")
+            .EmailAddress()
+            .WithMessage("Invalid email address.")
+            .WithErrorCode("EmailInvalid");
     }
 }
