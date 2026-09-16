@@ -9,4 +9,12 @@ Spełnione zostały wymagania z pierwszego etapu:<br>
 • Swagger lub Scalar do dokumentowania i testowania API,<br>
 • pracę z repozytorium zgodnie z podejściem GitFlow.<br>
 • Clean Architecure<br>
-• Połączenie z Front-Endem
+• Połączenie z Front-Endem 
+
+<br>
+
+> [!WARNING]
+> Przed uruchomieniem należy skonfigurować plik appsettings.json. Należy uzupełnić: <br>
+> • Connection String ("WarehouseDb") do bazy danych PostgreSQL. <br>
+> • Nazwę i hasło Admina. <br>
+> • Klucz, Issuer i Audience JWT.
