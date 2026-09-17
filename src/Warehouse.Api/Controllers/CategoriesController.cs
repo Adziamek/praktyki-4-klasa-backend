@@ -16,12 +16,14 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpGet]
+    [EndpointSummary("Get all categories")]
     public async Task<ActionResult<IEnumerable<Category>>> GetAll()
     {
         return Ok(await _categoryService.GetAllAsync());
     }
 
     [HttpGet("{id}")]
+    [EndpointSummary("Get category by id")]
     public async Task<ActionResult<Category>> GetById(int id)
     {
         var category = await _categoryService.GetByIdAsync(id);
@@ -30,6 +32,8 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpPost]
+    [EndpointSummary("Creates new category")]
+
     public async Task<ActionResult<Category>> Create(Category category)
     {
         var created = await _categoryService.CreateAsync(category);
@@ -37,6 +41,8 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [EndpointSummary("Updates existing category")]
+
     public async Task<ActionResult<Category>> Update(int id, Category category)
     {
         var updated = await _categoryService.UpdateAsync(id, category);
@@ -45,6 +51,8 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [EndpointSummary("Deletes existing category")]
+
     public async Task<IActionResult> Delete(int id)
     {
         var deleted = await _categoryService.DeleteAsync(id);
