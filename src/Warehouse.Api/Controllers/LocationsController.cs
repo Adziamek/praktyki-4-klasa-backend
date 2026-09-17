@@ -33,7 +33,7 @@ public class LocationsController : ControllerBase
             WarehouseCode = x.Warehouse.Code,
             Name = x.Name,
             IsActive = x.IsActive
-        }).ToListAsync();
+        }).OrderBy(x => x.Id).ToListAsync();
 
         return Ok(locations);
     }
@@ -54,7 +54,7 @@ public class LocationsController : ControllerBase
     }
 
     // POST: api/locations/
-    [Authorize(Roles = $"{nameof(UserRole.Administrator)},{nameof(UserRole.Warehouseman)}")]
+    [Authorize(Roles = nameof(UserRole.Administrator))]
     [HttpPost]
     [EndpointSummary("Inserts location into database")]
     [ProducesResponseType(StatusCodes.Status201Created)]
@@ -106,7 +106,56 @@ public class LocationsController : ControllerBase
             });
     }
 
+    // PUT: api/locations/5
+    [Authorize(Roles = nameof(UserRole.Administrator))]
+    [HttpPut("{id}")]
+    [EndpointSummary("Updates location in database")]
+    [ProducesResponseType(typeof(Location), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<ActionResult<Location>> PutLocation(int id, AddLocationDto dto)
+    {
+        var location = await _context.Locations.FindAsync(id);
+
+        if (location == null)
+            return Problem(
+                title: "Location doesn't exists.",
+                detail: "Location doesn't exists.",
+                statusCode: StatusCodes.Status404NotFound);
+
+        var warehouse = await _context.Warehouses.FirstOrDefaultAsync(x => x.Code == dto.WarehouseCode);
+
+        if (warehouse == null)
+            return Problem(
+                title: "Warehouse not found.",
+                detail: "Warehouse not found.",
+                statusCode: StatusCodes.Status409Conflict);
+
+        var exists = await _context.Locations
+            .AnyAsync(x =>
+                x.Id != id &&
+                x.WarehouseId == warehouse.Id &&
+                x.Code == dto.Code);
+
+        if (exists)
+            return Problem(
+                title: "Location with this code already exists in this warehouse.",
+                detail: "Location with this code already exists in this warehouse.",
+                statusCode: StatusCodes.Status409Conflict);
+
+        location.WarehouseId = warehouse.Id;
+        location.Warehouse = warehouse;
+        location.Code = dto.Code;
+        location.Name = dto.Name;
+        location.IsActive = dto.IsActive;
+
+        await _context.SaveChangesAsync();
+
+        return Ok();
+    }
+
     // DELETE: api/locations/5
+    [Authorize(Roles = nameof(UserRole.Administrator))]
     [HttpDelete("{id}")]
     [EndpointSummary("Deletes location from database")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
