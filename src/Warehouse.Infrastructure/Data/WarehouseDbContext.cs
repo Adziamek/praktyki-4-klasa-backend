@@ -14,6 +14,7 @@ public class WarehouseDbContext : DbContext
     public DbSet<User> Users => Set<User>();
     public DbSet<Location> Locations => Set<Location>();
     public DbSet<CWarehouse> Warehouses => Set<CWarehouse>();
+    public DbSet<Category> Categories => Set<Category>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
