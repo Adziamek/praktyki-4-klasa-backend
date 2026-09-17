@@ -170,6 +170,7 @@ public class UsersController : ControllerBase
     }
 
     // DELETE: api/User/5
+    [Authorize(Roles = nameof(UserRole.Administrator))]
     [HttpDelete("{id}")]
     [EndpointSummary("Deletes user from database")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
