@@ -1,7 +1,7 @@
 #Project
 bin/
 obj/
-appsettings.Development.json
+/src/Warehouse.Api/appsettings.Development.json
 #IDE
 .vscode/*.
 .vs

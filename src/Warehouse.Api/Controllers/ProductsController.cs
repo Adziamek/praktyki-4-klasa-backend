@@ -47,7 +47,7 @@ public class ProductsController : ControllerBase
     [EndpointSummary("Inserts product into database")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<ActionResult<Product>> AddProduct(ProductAddDto dto)
+    public async Task<ActionResult<Product>> AddProduct(AddProductDto dto)
     {
         var existingProduct = await _context.Products.FirstOrDefaultAsync(x => x.Name == dto.Name);
         var existingEan = await _context.Products.FirstOrDefaultAsync(x => x.Ean == dto.Ean);
@@ -108,7 +108,7 @@ public class ProductsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<Product>> UpdateProduct(
         Guid id,
-        ProductUpdateDto dto)
+        UpdateProductDto dto)
     {
         var product = await _context.Products.FindAsync(id);
 
