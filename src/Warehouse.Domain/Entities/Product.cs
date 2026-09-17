@@ -18,5 +18,10 @@ public class Product
         Ean = ean;
     }
     public Category Category { get; set; } = null!;
-
+    public void Update(string name, string ean, int categoryId)
+    {
+        Name = name;
+        Ean = ean;
+        CategoryId = categoryId;
+    }
 }
