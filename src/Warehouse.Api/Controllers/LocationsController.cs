@@ -151,7 +151,7 @@ public class LocationsController : ControllerBase
 
         await _context.SaveChangesAsync();
 
-        return Ok();
+        return Ok(location);
     }
 
     // DELETE: api/locations/5

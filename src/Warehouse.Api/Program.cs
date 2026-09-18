@@ -36,9 +36,11 @@ builder.Services.AddInfrastructure(connectionString);
 
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
+// ---- Validators
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<RegisterUserDtoValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<AddLocationValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<AddWarehouseValidator>();
 
 var jwtKey = builder.Configuration["Jwt:Key"]
     ?? throw new InvalidOperationException("JWT key not found.");
