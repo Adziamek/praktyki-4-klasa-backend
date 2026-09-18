@@ -6,6 +6,7 @@ public class Product
     public string Name { get; private set; } = string.Empty;
     public string Ean { get; private set; } = string.Empty;
     public int CategoryId { get; set; }
+    public int BrandId { get; set; }
 
     private Product()
     {
@@ -18,5 +19,13 @@ public class Product
         Ean = ean;
     }
     public Category Category { get; set; } = null!;
+    public Brand Brand { get; set; } = null!;
 
+    public void Update(string name, string ean, int categoryId, int brandId)
+    {
+        Name = name;
+        Ean = ean;
+        CategoryId = categoryId;
+        BrandId = brandId;
+    }
 }
