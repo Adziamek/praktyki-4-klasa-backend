@@ -174,7 +174,7 @@ public class UsersController : ControllerBase
     [EndpointSummary("Deletes user from database")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> DeleteUser(int? id)
+    public async Task<IActionResult> DeleteUser(int id)
     {
         var user = await _context.Users.FindAsync(id);
         if (user == null)

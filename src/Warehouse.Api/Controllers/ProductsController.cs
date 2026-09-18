@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Warehouse.Application.DTO;
 using Warehouse.Application.Interfaces;
 using Warehouse.Domain.Entities;
 using Warehouse.Application.DTO;
@@ -18,8 +19,10 @@ public class ProductsController : ControllerBase
     {
         _context = context;
     }
-
+    // GET: api/products/
     [HttpGet]
+    [EndpointSummary("Product list")]
+
     public async Task<IActionResult> GetProducts()
     {
         var products = await _context.Products.ToListAsync();

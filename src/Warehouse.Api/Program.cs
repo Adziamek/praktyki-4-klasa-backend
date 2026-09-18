@@ -2,14 +2,16 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Scalar.AspNetCore;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
+using Warehouse.Application.Validator;
 using Warehouse.Domain.Entities;
 using Warehouse.Infrastructure;
-using Scalar.AspNetCore;
 using Warehouse.Infrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -36,6 +38,7 @@ builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<RegisterUserDtoValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<AddLocationValidator>();
 
 var jwtKey = builder.Configuration["Jwt:Key"]
     ?? throw new InvalidOperationException("JWT key not found.");
@@ -59,6 +62,37 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
             NameClaimType = "username",
             RoleClaimType = ClaimTypes.Role
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnChallenge = async context =>
+            {
+                context.HandleResponse();
+
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                context.Response.ContentType = "application/problem+json";
+
+                await context.Response.WriteAsJsonAsync(new ProblemDetails
+                {
+                    Status = StatusCodes.Status401Unauthorized,
+                    Title = "Unauthorized",
+                    Detail = "You must be authenticated to access this resource."
+                });
+            },
+
+            OnForbidden = async context =>
+            {
+                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                context.Response.ContentType = "application/problem+json";
+
+                await context.Response.WriteAsJsonAsync(new ProblemDetails
+                {
+                    Status = StatusCodes.Status403Forbidden,
+                    Title = "Forbidden",
+                    Detail = "You don't have permission to access this resource."
+                });
+            }
         };
     });
 
