@@ -15,6 +15,7 @@ public class WarehouseDbContext : DbContext
     public DbSet<Location> Locations => Set<Location>();
     public DbSet<CWarehouse> Warehouses => Set<CWarehouse>();
     public DbSet<Category> Categories => Set<Category>();
+    public DbSet<Brand> Brands => Set<Brand>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -90,6 +91,9 @@ public class WarehouseDbContext : DbContext
         modelBuilder.Entity<CWarehouse>(entity =>
         {
             entity.HasKey(w => w.Id);
+
+            entity.Property(w => w.Id)
+                .ValueGeneratedOnAdd();
 
             entity.Property(w => w.Code)
                 .IsRequired()

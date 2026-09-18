@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Warehouse.Infrastructure.Data;
@@ -11,9 +12,11 @@ using Warehouse.Infrastructure.Data;
 namespace Warehouse.Infrastructure.Migrations
 {
     [DbContext(typeof(WarehouseDbContext))]
-    partial class WarehouseDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260918080541_AddBrandEntity")]
+    partial class AddBrandEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -85,37 +88,15 @@ namespace Warehouse.Infrastructure.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
                     b.ToTable("Categories");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Description = "Sprzęt elektroniczny i akcesoria",
-                            Name = "Elektronika"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Description = "Artykuły papiernicze i wyposażenie biura",
-                            Name = "Materiały Biurowe"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Description = "Narzędzia ręczne i elektronarzędzia",
-                            Name = "Narzędzia"
-                        });
                 });
 
             modelBuilder.Entity("Warehouse.Domain.Entities.Location", b =>
@@ -179,43 +160,6 @@ namespace Warehouse.Infrastructure.Migrations
                     b.HasIndex("CategoryId");
 
                     b.ToTable("Products");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("a1111111-1111-1111-1111-111111111111"),
-                            CategoryId = 1,
-                            Ean = "5901234567890",
-                            Name = "Laptop Dell XPS 15"
-                        },
-                        new
-                        {
-                            Id = new Guid("a2222222-2222-2222-2222-222222222222"),
-                            CategoryId = 1,
-                            Ean = "5901234567891",
-                            Name = "Mysz Bezprzewodowa Logitech MX Master 3S"
-                        },
-                        new
-                        {
-                            Id = new Guid("b1111111-1111-1111-1111-111111111111"),
-                            CategoryId = 2,
-                            Ean = "5901234567892",
-                            Name = "Papier A4 PolSpeed 80g (Karton 5 ryz)"
-                        },
-                        new
-                        {
-                            Id = new Guid("b2222222-2222-2222-2222-222222222222"),
-                            CategoryId = 2,
-                            Ean = "5901234567893",
-                            Name = "Długopis Cienkopis Czarny Pilot"
-                        },
-                        new
-                        {
-                            Id = new Guid("c1111111-1111-1111-1111-111111111111"),
-                            CategoryId = 3,
-                            Ean = "5901234567894",
-                            Name = "Wkrętarka Akumulatorowa Bosch Professional"
-                        });
                 });
 
             modelBuilder.Entity("Warehouse.Domain.Entities.User", b =>
