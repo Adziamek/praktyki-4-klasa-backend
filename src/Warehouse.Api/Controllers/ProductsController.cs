@@ -1,10 +1,7 @@
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Warehouse.Application.DTO;
-using Warehouse.Application.Interfaces;
+using Warehouse.Application.DTO.Product;
 using Warehouse.Domain.Entities;
-using Warehouse.Application.DTO;
 using Warehouse.Infrastructure.Data;
 
 namespace Warehouse.Api.Controllers;
@@ -14,11 +11,15 @@ namespace Warehouse.Api.Controllers;
 public class ProductsController : ControllerBase
 {
     private readonly WarehouseDbContext _context;
+    private readonly ILogger<ProductsController> _logger;
     public ProductsController(
-        WarehouseDbContext context)
+        WarehouseDbContext context,
+        ILogger<ProductsController> logger)
     {
         _context = context;
+        _logger = logger;
     }
+
     // GET: api/products/
     [HttpGet]
     [EndpointSummary("Product list")]
@@ -30,6 +31,7 @@ public class ProductsController : ControllerBase
         return Ok(products);
     }
 
+    // GET: api/products/5
     [HttpGet("{id}")]
     [EndpointSummary("Returns product by id")]
     [ProducesResponseType(typeof(Product), StatusCodes.Status200OK)]
@@ -43,26 +45,29 @@ public class ProductsController : ControllerBase
 
         return product;
     }
+
     // POST: api/products/add
     [HttpPost("add")]
     [EndpointSummary("Inserts product into database")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<ActionResult<Product>> AddProduct(AddProductDto dto)
+    public async Task<ActionResult<Product>> AddProduct(ProductDto dto)
     {
+        _logger.LogDebug($"Name: {dto.Name}, EAN: { dto.Ean }, CategoryID: { dto.CategoryId }, BranchID { dto.BrandId }");
+
         var existingProduct = await _context.Products.FirstOrDefaultAsync(x => x.Name == dto.Name);
         var existingEan = await _context.Products.FirstOrDefaultAsync(x => x.Ean == dto.Ean);
-
-        if (existingEan != null)
-            return Problem(
-                title: "Product with this ean already exists",
-                detail: "Product with this ean already exists.",
-                statusCode: StatusCodes.Status409Conflict);
 
         if (existingProduct != null)
             return Problem(
                 title: "Product with this name already exists",
                 detail: "Product with this name already exists.",
+                statusCode: StatusCodes.Status409Conflict);
+
+        if (existingEan != null)
+            return Problem(
+                title: "Product with this ean already exists",
+                detail: "Product with this ean already exists.",
                 statusCode: StatusCodes.Status409Conflict);
 
         var categoryExists = await _context.Categories
@@ -93,7 +98,6 @@ public class ProductsController : ControllerBase
             BrandId = dto.BrandId
         };
 
-
         _context.Products.Add(product);
         await _context.SaveChangesAsync();
 
@@ -109,6 +113,7 @@ public class ProductsController : ControllerBase
                 product.BrandId
             });
     }
+
     // DELETE: api/products/delete/id
     [HttpDelete("delete/{id}")]
     [EndpointSummary("Deletes product from database")]
@@ -125,6 +130,7 @@ public class ProductsController : ControllerBase
 
         return NoContent();
     }
+
     // Put: api/products/update
     [HttpPut("update/{id}")]
     [EndpointSummary("Updates product")]
@@ -133,7 +139,7 @@ public class ProductsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<Product>> UpdateProduct(
         Guid id,
-        UpdateProductDto dto)
+        ProductDto dto)
     {
         var product = await _context.Products.FindAsync(id);
 

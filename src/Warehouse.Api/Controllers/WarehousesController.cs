@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Warehouse.Application.DTO;
+using Warehouse.Application.DTO.Warehouse;
 using Warehouse.Domain.Entities;
 using Warehouse.Infrastructure.Data;
 

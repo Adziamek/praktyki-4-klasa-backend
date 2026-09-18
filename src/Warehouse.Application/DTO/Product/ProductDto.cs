@@ -1,6 +1,6 @@
-namespace Warehouse.Application.DTO;
+﻿namespace Warehouse.Application.DTO.Product;
 
-public  class AddProductDto
+public class ProductDto
 {
     public string Name { get; init; } = string.Empty;
     public string Ean { get; init; } = string.Empty;

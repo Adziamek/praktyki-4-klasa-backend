@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using Warehouse.Application.DTO;
 
-namespace Warehouse.Application.Validator;
+namespace Warehouse.Application.Validator.Location;
 
 public class AddLocationValidator : AbstractValidator<AddLocationDto>
 {
