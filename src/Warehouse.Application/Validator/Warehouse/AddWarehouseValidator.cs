@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
-using Warehouse.Application.DTO;
+using Warehouse.Application.DTO.Warehouse;
 
-namespace Warehouse.Application.Validator;
+namespace Warehouse.Application.Validator.Warehouse;
 
 public class AddWarehouseValidator : AbstractValidator<AddWarehouseDto>
 {
