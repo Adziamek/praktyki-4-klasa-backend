@@ -74,6 +74,9 @@ public class WarehouseDbContext : DbContext
         {
             entity.HasKey(w => w.Id);
 
+            entity.Property(w => w.Id)
+                .ValueGeneratedOnAdd();
+
             entity.Property(w => w.Code)
                 .IsRequired()
                 .HasMaxLength(50);
