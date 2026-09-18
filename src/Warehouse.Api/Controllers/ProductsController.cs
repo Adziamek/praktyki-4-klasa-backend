@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Warehouse.Application.DTO;
 using Warehouse.Application.Interfaces;
 using Warehouse.Domain.Entities;
+using Warehouse.Application.DTO;
 using Warehouse.Infrastructure.Data;
 
 namespace Warehouse.Api.Controllers;
@@ -28,7 +29,7 @@ public class ProductsController : ControllerBase
 
         return Ok(products);
     }
-    // GET: api/products/id
+
     [HttpGet("{id}")]
     [EndpointSummary("Returns product by id")]
     [ProducesResponseType(typeof(Product), StatusCodes.Status200OK)]
@@ -64,11 +65,34 @@ public class ProductsController : ControllerBase
                 detail: "Product with this name already exists.",
                 statusCode: StatusCodes.Status409Conflict);
 
+        var categoryExists = await _context.Categories
+            .AnyAsync(x => x.Id == dto.CategoryId);
+
+        if (!categoryExists)
+        {
+            return Problem(
+                title: "Category does not exist",
+                detail: $"Category with id {dto.CategoryId} does not exist.",
+                statusCode: StatusCodes.Status404NotFound);
+        }
+
+        var brandExists = await _context.Brands
+            .AnyAsync(x => x.Id == dto.BrandId);
+
+        if (!brandExists)
+        {
+            return Problem(
+                title: "Brand does not exist",
+                detail: $"Brand with id {dto.BrandId} does not exist.",
+                statusCode: StatusCodes.Status404NotFound);
+        }
+
         var product = new Product(dto.Name, dto.Ean)
         {
-            CategoryId = dto.CategoryId
+            CategoryId = dto.CategoryId,
+            BrandId = dto.BrandId
         };
-        
+
 
         _context.Products.Add(product);
         await _context.SaveChangesAsync();
@@ -81,7 +105,8 @@ public class ProductsController : ControllerBase
                 product.Id,
                 product.Name,
                 product.Ean,
-                product.CategoryId
+                product.CategoryId,
+                product.BrandId
             });
     }
     // DELETE: api/products/delete/id
@@ -126,6 +151,17 @@ public class ProductsController : ControllerBase
                 statusCode: StatusCodes.Status404NotFound);
         }
 
+        var brandExists = await _context.Brands
+            .AnyAsync(x => x.Id == dto.BrandId);
+
+        if (!brandExists)
+        {
+            return Problem(
+                title: "Brand does not exist",
+                detail: $"Brand with id {dto.BrandId} does not exist.",
+                statusCode: StatusCodes.Status404NotFound);
+        }
+
         var existingProduct = await _context.Products
             .FirstOrDefaultAsync(x => x.Name == dto.Name && x.Id != id);
 
@@ -151,7 +187,8 @@ public class ProductsController : ControllerBase
         product.Update(
             dto.Name,
             dto.Ean,
-            dto.CategoryId);
+            dto.CategoryId,
+            dto.BrandId);
 
         await _context.SaveChangesAsync();
 
@@ -160,7 +197,8 @@ public class ProductsController : ControllerBase
             product.Id,
             product.Name,
             product.Ean,
-            product.CategoryId
+            product.CategoryId,
+            product.BrandId
         });
     }
 }
