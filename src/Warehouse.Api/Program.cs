@@ -111,6 +111,8 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+app.UseMiddleware<Warehouse.Api.Middleware.ExceptionHandlingMiddleware>();
+
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<WarehouseDbContext>();
