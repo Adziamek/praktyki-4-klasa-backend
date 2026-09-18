@@ -32,6 +32,24 @@ public class WarehouseDbContext : DbContext
             entity.Property(p => p.Ean)
                 .IsRequired()
                 .HasMaxLength(13);
+
+            // Relacja z Category
+            entity.HasOne(p => p.Category)
+                .WithMany(c => c.Products)
+                .HasForeignKey(p => p.CategoryId);
+        });
+
+        // Category
+        modelBuilder.Entity<Category>(entity =>
+        {
+            entity.HasKey(c => c.Id);
+
+            entity.Property(c => c.Name)
+                .IsRequired()
+                .HasMaxLength(200);
+
+            entity.Property(c => c.Description)
+                .HasMaxLength(500);
         });
 
         // User
@@ -108,5 +126,8 @@ public class WarehouseDbContext : DbContext
                 .WithMany(w => w.Locations)
                 .HasForeignKey(l => l.WarehouseId);
         });
+
+        // Podpięcie seedowania danych
+        modelBuilder.Seed();
     }
 }
