@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Warehouse.Application.DTO;
+using Warehouse.Application.Interfaces;
 using Warehouse.Domain.Entities;
 using Warehouse.Infrastructure.Data;
 
@@ -9,32 +10,27 @@ using Warehouse.Infrastructure.Data;
 [ApiController]
 public class LocationsController : ControllerBase
 {
+    private readonly ILocationService _locationService;
     private readonly WarehouseDbContext _context;
     private readonly ILogger<LocationsController> _logger;
 
     public LocationsController(
         WarehouseDbContext context,
+        ILocationService locationService,
         ILogger<LocationsController> logger)
     {
         _context = context;
+        _locationService = locationService;
         _logger = logger;
     }
 
     // GET: api/locations
     [HttpGet]
-    [EndpointSummary("Returns all locations")]
+    [EndpointSummary("Locations list")]
     [ProducesResponseType(typeof(IEnumerable<ResultLocationDto>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<ResultLocationDto>>> GetLocations()
+    public async Task<ActionResult<IReadOnlyList<Location>>> GetLocations()
     {
-        var locations = await _context.Locations.Select(x => new ResultLocationDto
-        {
-            Id = x.Id,
-            Code = x.Code,
-            WarehouseCode = x.Warehouse.Code,
-            Name = x.Name,
-            IsActive = x.IsActive
-        }).OrderBy(x => x.Id).ToListAsync();
-
+        var locations = await _locationService.GetAllAsync();
         return Ok(locations);
     }
 

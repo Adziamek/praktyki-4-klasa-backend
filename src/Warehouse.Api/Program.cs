@@ -9,12 +9,14 @@ using Scalar.AspNetCore;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
+using Warehouse.Application.Interfaces;
 using Warehouse.Application.Validator.Location;
 using Warehouse.Application.Validator.Product;
 using Warehouse.Application.Validator.Warehouse;
 using Warehouse.Domain.Entities;
 using Warehouse.Infrastructure;
 using Warehouse.Infrastructure.Data;
+using Warehouse.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,6 +39,12 @@ var connectionString = builder.Configuration.GetConnectionString("WarehouseDb")
 builder.Services.AddInfrastructure(connectionString);
 
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+
+// ---- Services
+
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ILocationService, LocationService>();
+
 
 // ---- Validators
 builder.Services.AddFluentValidationAutoValidation();

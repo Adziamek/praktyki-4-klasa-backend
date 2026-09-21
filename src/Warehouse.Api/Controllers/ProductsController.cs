@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Warehouse.Application.DTO.Product;
+using Warehouse.Application.Interfaces;
 using Warehouse.Domain.Entities;
-using Warehouse.Infrastructure.Data;
 
 namespace Warehouse.Api.Controllers;
 
@@ -10,40 +9,39 @@ namespace Warehouse.Api.Controllers;
 [Route("api/products")]
 public class ProductsController : ControllerBase
 {
-    private readonly WarehouseDbContext _context;
+    private readonly IProductService _productService;
     private readonly ILogger<ProductsController> _logger;
+
     public ProductsController(
-        WarehouseDbContext context,
+        IProductService productService,
         ILogger<ProductsController> logger)
     {
-        _context = context;
+        _productService = productService;
         _logger = logger;
     }
-
-    // GET: api/products/
+    
+    // GET: api/products
     [HttpGet]
     [EndpointSummary("Product list")]
-
-    public async Task<IActionResult> GetProducts()
+    public async Task<ActionResult<IReadOnlyList<Product>>> GetProducts()
     {
-        var products = await _context.Products.ToListAsync();
-
+        var products = await _productService.GetAllAsync();
         return Ok(products);
     }
 
-    // GET: api/products/5
-    [HttpGet("{id}")]
+    // GET: api/products/{id}
+    [HttpGet("{id:guid}")]
     [EndpointSummary("Returns product by id")]
     [ProducesResponseType(typeof(Product), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<Product>> GetProductById(Guid id)
     {
-        var product = await _context.Products.FindAsync(id);
+        var product = await _productService.GetByIdAsync(id);
 
         if (product == null)
             return NotFound();
 
-        return product;
+        return Ok(product);
     }
 
     // POST: api/products/add
@@ -53,53 +51,22 @@ public class ProductsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<Product>> AddProduct(ProductDto dto)
     {
-        _logger.LogDebug($"Name: {dto.Name}, EAN: { dto.Ean }, CategoryID: { dto.CategoryId }, BranchID { dto.BrandId }");
+        _logger.LogDebug(
+            "Adding product: {Name}, EAN: {Ean}",
+            dto.Name,
+            dto.Ean);
 
-        var existingProduct = await _context.Products.FirstOrDefaultAsync(x => x.Name == dto.Name);
-        var existingEan = await _context.Products.FirstOrDefaultAsync(x => x.Ean == dto.Ean);
+        var result = await _productService.AddAsync(dto);
 
-        if (existingProduct != null)
-            return Problem(
-                title: "Product with this name already exists",
-                detail: "Product with this name already exists.",
-                statusCode: StatusCodes.Status409Conflict);
-
-        if (existingEan != null)
-            return Problem(
-                title: "Product with this ean already exists",
-                detail: "Product with this ean already exists.",
-                statusCode: StatusCodes.Status409Conflict);
-
-        var categoryExists = await _context.Categories
-            .AnyAsync(x => x.Id == dto.CategoryId);
-
-        if (!categoryExists)
+        if (!result.Success)
         {
             return Problem(
-                title: "Category does not exist",
-                detail: $"Category with id {dto.CategoryId} does not exist.",
-                statusCode: StatusCodes.Status404NotFound);
+                title: result.Error,
+                detail: result.Error,
+                statusCode: result.StatusCode);
         }
 
-        var brandExists = await _context.Brands
-            .AnyAsync(x => x.Id == dto.BrandId);
-
-        if (!brandExists)
-        {
-            return Problem(
-                title: "Brand does not exist",
-                detail: $"Brand with id {dto.BrandId} does not exist.",
-                statusCode: StatusCodes.Status404NotFound);
-        }
-
-        var product = new Product(dto.Name, dto.Ean)
-        {
-            CategoryId = dto.CategoryId,
-            BrandId = dto.BrandId
-        };
-
-        _context.Products.Add(product);
-        await _context.SaveChangesAsync();
+        var product = result.Product!;
 
         return CreatedAtAction(
             nameof(GetProductById),
@@ -114,25 +81,23 @@ public class ProductsController : ControllerBase
             });
     }
 
-    // DELETE: api/products/delete/id
-    [HttpDelete("delete/{id}")]
+    // DELETE: api/products/delete/{id}
+    [HttpDelete("delete/{id:guid}")]
     [EndpointSummary("Deletes product from database")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> DeleteProduct(Guid? id)
+    public async Task<IActionResult> DeleteProduct(Guid id)
     {
-        var product = await _context.Products.FindAsync(id);
-        if (product == null)
-            return NotFound();
+        var deleted = await _productService.DeleteAsync(id);
 
-        _context.Products.Remove(product);
-        await _context.SaveChangesAsync();
+        if (!deleted)
+            return NotFound();
 
         return NoContent();
     }
 
-    // Put: api/products/update
-    [HttpPut("update/{id}")]
+    // PUT: api/products/update/{id}
+    [HttpPut("update/{id:guid}")]
     [EndpointSummary("Updates product")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -141,62 +106,17 @@ public class ProductsController : ControllerBase
         Guid id,
         ProductDto dto)
     {
-        var product = await _context.Products.FindAsync(id);
+        var result = await _productService.UpdateAsync(id, dto);
 
-        if (product == null)
-            return NotFound();
-
-        var categoryExists = await _context.Categories
-            .AnyAsync(x => x.Id == dto.CategoryId);
-
-        if (!categoryExists)
+        if (!result.Success)
         {
             return Problem(
-                title: "Category does not exist",
-                detail: $"Category with id {dto.CategoryId} does not exist.",
-                statusCode: StatusCodes.Status404NotFound);
+                title: result.Error,
+                detail: result.Error,
+                statusCode: result.StatusCode);
         }
 
-        var brandExists = await _context.Brands
-            .AnyAsync(x => x.Id == dto.BrandId);
-
-        if (!brandExists)
-        {
-            return Problem(
-                title: "Brand does not exist",
-                detail: $"Brand with id {dto.BrandId} does not exist.",
-                statusCode: StatusCodes.Status404NotFound);
-        }
-
-        var existingProduct = await _context.Products
-            .FirstOrDefaultAsync(x => x.Name == dto.Name && x.Id != id);
-
-        if (existingProduct != null)
-        {
-            return Problem(
-                title: "Product with this name already exists",
-                detail: "Product with this name already exists.",
-                statusCode: StatusCodes.Status409Conflict);
-        }
-
-        var existingEan = await _context.Products
-            .FirstOrDefaultAsync(x => x.Ean == dto.Ean && x.Id != id);
-
-        if (existingEan != null)
-        {
-            return Problem(
-                title: "Product with this ean already exists",
-                detail: "Product with this ean already exists.",
-                statusCode: StatusCodes.Status409Conflict);
-        }
-
-        product.Update(
-            dto.Name,
-            dto.Ean,
-            dto.CategoryId,
-            dto.BrandId);
-
-        await _context.SaveChangesAsync();
+        var product = result.Product!;
 
         return Ok(new
         {
