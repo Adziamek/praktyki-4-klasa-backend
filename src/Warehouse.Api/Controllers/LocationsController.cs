@@ -131,7 +131,25 @@ public class LocationsController : ControllerBase
                 statusCode: result.StatusCode);
         }
 
-        return Ok(result.Location);
+        location.WarehouseId = warehouse.Id;
+        location.Warehouse = warehouse;
+        location.Code = dto.Code;
+        location.Name = dto.Name;
+        location.IsActive = dto.IsActive;
+
+        await _context.SaveChangesAsync();
+
+        return CreatedAtAction(
+            nameof(GetLocationById),
+            new { id = location.Id },
+            new
+            {
+                location.Id,
+                location.WarehouseId,
+                location.Code,
+                location.Name,
+                location.IsActive
+            });
     }
 
     // DELETE: api/locations/{id}

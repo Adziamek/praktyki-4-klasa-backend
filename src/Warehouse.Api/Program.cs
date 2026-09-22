@@ -54,6 +54,9 @@ builder.Services.AddValidatorsFromAssemblyContaining<LocationValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<AddWarehouseValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<ProductValidator>();
 
+// ---- Services
+builder.Services.AddScoped<IUserService, UserService>();
+
 var jwtKey = builder.Configuration["Jwt:Key"]
     ?? throw new InvalidOperationException("JWT key not found.");
 
