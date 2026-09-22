@@ -1,11 +1,11 @@
 ﻿using FluentValidation;
-using Warehouse.Application.DTO;
+using Warehouse.Application.DTO.Location;
 
 namespace Warehouse.Application.Validator.Location;
 
-public class AddLocationValidator : AbstractValidator<AddLocationDto>
+public class LocationValidator : AbstractValidator<LocationDto>
 {
-    public AddLocationValidator()
+    public LocationValidator()
     {
         RuleFor(x => x.Code)
             .NotEmpty()

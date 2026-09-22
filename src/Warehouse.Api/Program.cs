@@ -49,7 +49,7 @@ builder.Services.AddScoped<ILocationService, LocationService>();
 // ---- Validators
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<RegisterUserDtoValidator>();
-builder.Services.AddValidatorsFromAssemblyContaining<AddLocationValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<LocationValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<AddWarehouseValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<ProductValidator>();
 

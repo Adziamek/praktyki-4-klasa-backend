@@ -49,7 +49,6 @@ public class ProductService : IProductService
 
     public async Task<ProductOperationResult> AddAsync(ProductDto dto)
     {
-        // Sprawdzenie duplikatu nazwy
         var existingProduct = await _context.Products
             .AnyAsync(x => x.Name == dto.Name);
 
@@ -60,7 +59,6 @@ public class ProductService : IProductService
                 StatusCodes.Status409Conflict);
         }
 
-        // Sprawdzenie duplikatu EAN
         var existingEan = await _context.Products
             .AnyAsync(x => x.Ean == dto.Ean);
 
@@ -71,7 +69,6 @@ public class ProductService : IProductService
                 StatusCodes.Status409Conflict);
         }
 
-        // Sprawdzenie kategorii
         var categoryExists = await _context.Categories
             .AnyAsync(x => x.Id == dto.CategoryId);
 
@@ -82,7 +79,6 @@ public class ProductService : IProductService
                 StatusCodes.Status404NotFound);
         }
 
-        // Sprawdzenie marki
         var brandExists = await _context.Brands
             .AnyAsync(x => x.Id == dto.BrandId);
 

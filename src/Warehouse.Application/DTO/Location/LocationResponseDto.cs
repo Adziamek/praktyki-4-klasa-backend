@@ -1,6 +1,6 @@
-﻿namespace Warehouse.Application.DTO;
+namespace Warehouse.Application.DTO.Location;
 
-public class ResultLocationDto
+public class LocationResponseDto
 {
     public int Id { get; set; }
     public string Code { get; set; } = string.Empty;
