@@ -70,6 +70,9 @@ namespace Warehouse.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("Active")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -79,9 +82,6 @@ namespace Warehouse.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -99,17 +99,17 @@ namespace Warehouse.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
+                            Active = true,
                             Code = "WH-01",
                             Description = "Główny magazyn centralny",
-                            IsActive = true,
                             Name = "Magazyn Główny Warszawa"
                         },
                         new
                         {
                             Id = 2,
+                            Active = true,
                             Code = "WH-02",
                             Description = "Magazyn regionalny",
-                            IsActive = true,
                             Name = "Magazyn Wrocław"
                         });
                 });
@@ -235,8 +235,6 @@ namespace Warehouse.Infrastructure.Migrations
                         .HasColumnType("character varying(200)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("BrandId");
 
                     b.HasIndex("CategoryId");
 
@@ -379,26 +377,11 @@ namespace Warehouse.Infrastructure.Migrations
 
             modelBuilder.Entity("Warehouse.Domain.Entities.Product", b =>
                 {
-                    b.HasOne("Warehouse.Domain.Entities.Brand", "Brand")
-                        .WithMany("Products")
-                        .HasForeignKey("BrandId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Warehouse.Domain.Entities.Category", "Category")
+                    b.HasOne("Warehouse.Domain.Entities.Category", null)
                         .WithMany("Products")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Brand");
-
-                    b.Navigation("Category");
-                });
-
-            modelBuilder.Entity("Warehouse.Domain.Entities.Brand", b =>
-                {
-                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("Warehouse.Domain.Entities.CWarehouse", b =>

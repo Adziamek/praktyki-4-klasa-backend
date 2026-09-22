@@ -31,7 +31,7 @@ public class WarehousesController : ControllerBase
             Code = x.Code,
             Name = x.Name,
             Description = x.Description,
-            IsActive = x.IsActive
+            Active = x.Active
         })
         .OrderBy(x => x.Code)
         .ToListAsync();
@@ -78,7 +78,7 @@ public class WarehousesController : ControllerBase
             Code = dto.Code,
             Name = dto.Name,
             Description = dto.Description,
-            IsActive = dto.IsActive
+            Active = dto.IsActive
         };
 
         _context.Warehouses.Add(warehouse);
@@ -92,7 +92,7 @@ public class WarehousesController : ControllerBase
                 warehouse.Code,
                 warehouse.Name,
                 warehouse.Description,
-                warehouse.IsActive
+                IsActive = warehouse.Active
             });
     }
 
@@ -124,7 +124,7 @@ public class WarehousesController : ControllerBase
         warehouse.Code = dto.Code;
         warehouse.Name = dto.Name;
         warehouse.Description = dto.Description;
-        warehouse.IsActive = dto.IsActive;
+        warehouse.Active = dto.IsActive;
 
         await _context.SaveChangesAsync();
 

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Warehouse.Application.DTO.Brand;
 using Warehouse.Application.Interfaces;
-using Warehouse.Domain.Entities;
 
 namespace Warehouse.Api.Controllers;
 
@@ -9,51 +9,106 @@ namespace Warehouse.Api.Controllers;
 public class BrandsController : ControllerBase
 {
     private readonly IBrandService _brandService;
+    private readonly ILogger<BrandsController> _logger;
 
-    public BrandsController(IBrandService brandService)
+    public BrandsController(
+        IBrandService brandService,
+        ILogger<BrandsController> logger)
     {
         _brandService = brandService;
+        _logger = logger;
     }
 
+    // GET: api/brands
     [HttpGet]
-    [EndpointSummary("Get all brands")]
-    public async Task<ActionResult<IEnumerable<Brand>>> GetAll()
+    [EndpointSummary("Brand list")]
+    [ProducesResponseType(typeof(IReadOnlyList<BrandResponseDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IReadOnlyList<BrandResponseDto>>> GetBrands()
     {
-        return Ok(await _brandService.GetAllAsync());
+        var brands = await _brandService.GetAllAsync();
+
+        return Ok(brands);
     }
 
-    [HttpGet("{id}")]
-    [EndpointSummary("Get brand by id")]
-    public async Task<ActionResult<Brand>> GetById(int id)
+    // GET: api/brands/{id}
+    [HttpGet("{id:int}")]
+    [EndpointSummary("Returns brand by id")]
+    [ProducesResponseType(typeof(BrandResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<BrandResponseDto>> GetBrandById(int id)
     {
         var brand = await _brandService.GetByIdAsync(id);
-        if (brand is null) return NotFound();
+
+        if (brand is null)
+            return NotFound();
+
         return Ok(brand);
     }
 
+    // POST: api/brands
     [HttpPost]
     [EndpointSummary("Creates new brand")]
-    public async Task<ActionResult<Brand>> Create(Brand brand)
+    [ProducesResponseType(typeof(BrandResponseDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<ActionResult<BrandResponseDto>> AddBrand(BrandDto dto)
     {
-        var created = await _brandService.CreateAsync(brand);
-        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+        _logger.LogDebug(
+            "Adding brand: {Name}",
+            dto.Name);
+
+        var result = await _brandService.AddAsync(dto);
+
+        if (!result.Success)
+        {
+            return Problem(
+                title: result.Error,
+                detail: result.Error,
+                statusCode: result.StatusCode);
+        }
+
+        var brand = result.Brand!;
+
+        return CreatedAtAction(
+            nameof(GetBrandById),
+            new { id = brand.Id },
+            brand);
     }
 
-    [HttpPut("{id}")]
+    // PUT: api/brands/{id}
+    [HttpPut("{id:int}")]
     [EndpointSummary("Updates existing brand")]
-    public async Task<ActionResult<Brand>> Update(int id, Brand brand)
+    [ProducesResponseType(typeof(BrandResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<ActionResult<BrandResponseDto>> UpdateBrand(
+        int id,
+        BrandDto dto)
     {
-        var updated = await _brandService.UpdateAsync(id, brand);
-        if (updated is null) return NotFound();
-        return Ok(updated);
+        var result = await _brandService.UpdateAsync(id, dto);
+
+        if (!result.Success)
+        {
+            return Problem(
+                title: result.Error,
+                detail: result.Error,
+                statusCode: result.StatusCode);
+        }
+
+        return Ok(result.Brand);
     }
 
-    [HttpDelete("{id}")]
+    // DELETE: api/brands/{id}
+    [HttpDelete("{id:int}")]
     [EndpointSummary("Deletes existing brand")]
-    public async Task<IActionResult> Delete(int id)
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteBrand(int id)
     {
         var deleted = await _brandService.DeleteAsync(id);
-        if (!deleted) return NotFound();
+
+        if (!deleted)
+            return NotFound();
+
         return NoContent();
     }
 }

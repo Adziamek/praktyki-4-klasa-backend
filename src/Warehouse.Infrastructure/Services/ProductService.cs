@@ -89,8 +89,10 @@ public class ProductService : IProductService
                 StatusCodes.Status404NotFound);
         }
 
-        var product = new Product(dto.Name, dto.Ean)
+        var product = new Product
         {
+            Name = dto.Name,
+            Ean = dto.Ean,
             CategoryId = dto.CategoryId,
             BrandId = dto.BrandId
         };
@@ -156,11 +158,10 @@ public class ProductService : IProductService
                 StatusCodes.Status409Conflict);
         }
 
-        product.Update(
-            dto.Name,
-            dto.Ean,
-            dto.CategoryId,
-            dto.BrandId);
+        product.Name = dto.Name;
+        product.Ean = dto.Ean;
+        product.CategoryId = dto.CategoryId;
+        product.BrandId = dto.BrandId;
 
         await _context.SaveChangesAsync();
 

@@ -44,7 +44,8 @@ builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ILocationService, LocationService>();
-
+builder.Services.AddScoped<IBrandService, BrandService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 // ---- Validators
 builder.Services.AddFluentValidationAutoValidation();

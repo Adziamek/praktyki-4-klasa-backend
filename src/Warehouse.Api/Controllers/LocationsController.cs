@@ -1,18 +1,18 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
 using Warehouse.Application.DTO.Location;
 using Warehouse.Application.Interfaces;
-using FluentValidation;
 
 namespace Warehouse.Api.Controllers;
 
 [ApiController]
-[Route("api/locations")]
+[Route("api/[controller]")]
 public class LocationsController : ControllerBase
 {
     private readonly ILocationService _locationService;
     private readonly ILogger<LocationsController> _logger;
     private readonly IValidator<LocationDto> _validator;
-    
+
     public LocationsController(
         ILocationService locationService,
         ILogger<LocationsController> logger,
@@ -26,9 +26,11 @@ public class LocationsController : ControllerBase
     // GET: api/locations
     [HttpGet]
     [EndpointSummary("Location list")]
+    [ProducesResponseType(typeof(IReadOnlyList<LocationResponseDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<LocationResponseDto>>> GetLocations()
     {
         var locations = await _locationService.GetAllAsync();
+
         return Ok(locations);
     }
 
@@ -47,10 +49,11 @@ public class LocationsController : ControllerBase
         return Ok(location);
     }
 
-    // POST: api/locations/add
-    [HttpPost("add")]
-    [EndpointSummary("Inserts location into database")]
-    [ProducesResponseType(StatusCodes.Status201Created)]
+    // POST: api/locations
+    [HttpPost]
+    [EndpointSummary("Creates new location")]
+    [ProducesResponseType(typeof(LocationResponseDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<LocationResponseDto>> AddLocation(LocationDto dto)
@@ -61,12 +64,14 @@ public class LocationsController : ControllerBase
         {
             foreach (var error in validationResult.Errors)
             {
-                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+                ModelState.AddModelError(
+                    error.PropertyName,
+                    error.ErrorMessage);
             }
 
             return ValidationProblem(ModelState);
         }
-        
+
         _logger.LogDebug(
             "Adding location: {Name}, Code: {Code}, Warehouse: {WarehouseCode}",
             dto.Name,
@@ -91,13 +96,16 @@ public class LocationsController : ControllerBase
             location);
     }
 
-    // PUT: api/locations/update/{id}
-    [HttpPut("update/{id:int}")]
-    [EndpointSummary("Updates location")]
+    // PUT: api/locations/{id}
+    [HttpPut("{id:int}")]
+    [EndpointSummary("Updates existing location")]
     [ProducesResponseType(typeof(LocationResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<ActionResult<LocationResponseDto>> UpdateLocation(int id, LocationDto dto)
+    public async Task<ActionResult<LocationResponseDto>> UpdateLocation(
+        int id,
+        LocationDto dto)
     {
         var validationResult = await _validator.ValidateAsync(dto);
 
@@ -105,12 +113,14 @@ public class LocationsController : ControllerBase
         {
             foreach (var error in validationResult.Errors)
             {
-                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+                ModelState.AddModelError(
+                    error.PropertyName,
+                    error.ErrorMessage);
             }
 
             return ValidationProblem(ModelState);
         }
-        
+
         var result = await _locationService.UpdateAsync(id, dto);
 
         if (!result.Success)
@@ -123,10 +133,10 @@ public class LocationsController : ControllerBase
 
         return Ok(result.Location);
     }
-    
-    // DELETE: api/locations/delete/{id}
-    [HttpDelete("delete/{id:int}")]
-    [EndpointSummary("Deletes location from database")]
+
+    // DELETE: api/locations/{id}
+    [HttpDelete("{id:int}")]
+    [EndpointSummary("Deletes existing location")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteLocation(int id)

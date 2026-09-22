@@ -120,7 +120,7 @@ public class WarehouseDbContext : DbContext
                 Code = "WH-01",
                 Name = "Magazyn Główny Warszawa",
                 Description = "Główny magazyn centralny",
-                IsActive = true
+                Active = true
             },
             new CWarehouse
             {
@@ -128,7 +128,7 @@ public class WarehouseDbContext : DbContext
                 Code = "WH-02",
                 Name = "Magazyn Wrocław",
                 Description = "Magazyn regionalny",
-                IsActive = true
+                Active = true
             }
         );
 
