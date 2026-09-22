@@ -6,6 +6,6 @@ public class CWarehouse
     public string Code { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
-    public bool Active { get; set; }
+    public bool IsActive { get; set; }
     public ICollection<Location> Locations { get; set; } = new List<Location>();
 }

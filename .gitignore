@@ -2,6 +2,7 @@
 bin/
 obj/
 /src/Warehouse.Api/appsettings.Development.json
+/src/Warehouse.Infrastructure/WarehouseDbContextFactory.cs
 #IDE
 .vscode/*.
 .vs
