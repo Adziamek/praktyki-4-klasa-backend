@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using Warehouse.Application.DTO.Brand;
 using Warehouse.Application.Interfaces;
 using Warehouse.Domain.Entities;
 using Warehouse.Infrastructure.Data;
@@ -13,43 +15,93 @@ public class BrandService : IBrandService
     {
         _context = context;
     }
-
-    public async Task<IEnumerable<Brand>> GetAllAsync()
+    
+    private static BrandResponseDto MapToDto(Brand brand)
     {
-        return await _context.Brands.ToListAsync();
+        return new BrandResponseDto
+        {
+            Id = brand.Id,
+            Name = brand.Name,
+            Description = brand.Description
+        };
     }
 
-    public async Task<Brand?> GetByIdAsync(int id)
+    public async Task<IReadOnlyList<BrandResponseDto>> GetAllAsync()
     {
-        return await _context.Brands.FindAsync(id);
+        var brands = await _context.Brands
+            .AsNoTracking()
+            .ToListAsync();
+
+        return brands.Select(MapToDto).ToList();    
     }
 
-    public async Task<Brand> CreateAsync(Brand brand)
+    public async Task<BrandResponseDto?> GetByIdAsync(int id)
     {
+        var brand = await _context.Brands
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        return brand is null ? null : MapToDto(brand);
+    }
+
+    public async Task<BrandOperationResult> AddAsync(BrandDto dto)
+    {
+        var existingBrand = await _context.Brands
+            .AnyAsync(x => x.Name == dto.Name);
+
+        if (existingBrand)
+        {
+            return BrandOperationResult.Fail(
+                "Brand with this name already exists.",
+                StatusCodes.Status409Conflict);
+        }
+
+        var brand = new Brand
+        {
+            Name = dto.Name,
+            Description = dto.Description
+        };
+        
         _context.Brands.Add(brand);
         await _context.SaveChangesAsync();
-        return brand;
+
+        return BrandOperationResult.Ok(MapToDto(brand));
     }
 
-    public async Task<Brand?> UpdateAsync(int id, Brand brand)
+    public async Task<BrandOperationResult?> UpdateAsync(int id, BrandDto dto)
     {
-        var existing = await _context.Brands.FindAsync(id);
-        if (existing is null) return null;
+        var brand = await _context.Brands.FindAsync(id);
+        if (brand is null) return null;
+        
+        var existingBrand = await _context.Brands
+            .AnyAsync(x => x.Name == dto.Name && x.Id != id);
 
-        existing.Name = brand.Name;
-        existing.Description = brand.Description;
+        if (existingBrand)
+        {
+            return BrandOperationResult.Fail(
+                "Brand with this name already exists.",
+                StatusCodes.Status409Conflict);
+        }
+        
+        brand.Name = dto.Name;
+        brand.Description = dto.Description;
 
         await _context.SaveChangesAsync();
-        return existing;
+        
+        return BrandOperationResult.Ok(MapToDto(brand));
     }
 
     public async Task<bool> DeleteAsync(int id)
     {
-        var existing = await _context.Brands.FindAsync(id);
-        if (existing is null) return false;
+        var brand = await _context.Brands
+            .FirstOrDefaultAsync(x => x.Id == id);
 
-        _context.Brands.Remove(existing);
+        if (brand == null)
+            return false;
+
+        _context.Brands.Remove(brand);
         await _context.SaveChangesAsync();
+
         return true;
     }
 }

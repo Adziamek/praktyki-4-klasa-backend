@@ -1,6 +1,6 @@
-﻿namespace Warehouse.Domain.Entities;
+namespace Warehouse.Application.DTO.Category;
 
-public class Brand
+public class CategoryResponseDto
 {
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;

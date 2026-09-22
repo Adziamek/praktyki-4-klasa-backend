@@ -40,10 +40,17 @@ builder.Services.AddInfrastructure(connectionString);
 
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
+// ---- Services
+
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ILocationService, LocationService>();
+builder.Services.AddScoped<IBrandService, BrandService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+
 // ---- Validators
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<RegisterUserDtoValidator>();
-builder.Services.AddValidatorsFromAssemblyContaining<AddLocationValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<LocationValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<AddWarehouseValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<ProductValidator>();
 
