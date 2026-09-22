@@ -92,7 +92,7 @@ public class WarehousesController : ControllerBase
                 warehouse.Code,
                 warehouse.Name,
                 warehouse.Description,
-                warehouse.IsActive
+                IsActive = warehouse.IsActive
             });
     }
 

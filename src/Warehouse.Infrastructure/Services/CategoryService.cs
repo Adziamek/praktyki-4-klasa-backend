@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using Warehouse.Application.DTO.Category;
 using Warehouse.Application.Interfaces;
 using Warehouse.Domain.Entities;
 using Warehouse.Infrastructure.Data;
@@ -13,43 +15,93 @@ public class CategoryService : ICategoryService
     {
         _context = context;
     }
-
-    public async Task<IEnumerable<Category>> GetAllAsync()
+    
+    private static CategoryResponseDto MapToDto(Category category)
     {
-        return await _context.Categories.ToListAsync();
+        return new CategoryResponseDto
+        {
+            Id = category.Id,
+            Name = category.Name,
+            Description = category.Description
+        };
     }
 
-    public async Task<Category?> GetByIdAsync(int id)
+    public async Task<IReadOnlyList<CategoryResponseDto>> GetAllAsync()
     {
-        return await _context.Categories.FindAsync(id);
+        var categorys = await _context.Categories
+            .AsNoTracking()
+            .ToListAsync();
+
+        return categorys.Select(MapToDto).ToList();    
     }
 
-    public async Task<Category> CreateAsync(Category category)
+    public async Task<CategoryResponseDto?> GetByIdAsync(int id)
     {
+        var category = await _context.Categories
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        return category is null ? null : MapToDto(category);
+    }
+
+    public async Task<CategoryOperationResult> AddAsync(CategoryDto dto)
+    {
+        var existingcategory = await _context.Categories
+            .AnyAsync(x => x.Name == dto.Name);
+
+        if (existingcategory)
+        {
+            return CategoryOperationResult.Fail(
+                "Category with this name already exists.",
+                StatusCodes.Status409Conflict);
+        }
+
+        var category = new Category
+        {
+            Name = dto.Name,
+            Description = dto.Description
+        };
+        
         _context.Categories.Add(category);
         await _context.SaveChangesAsync();
-        return category;
+
+        return CategoryOperationResult.Ok(MapToDto(category));
     }
 
-    public async Task<Category?> UpdateAsync(int id, Category category)
+    public async Task<CategoryOperationResult?> UpdateAsync(int id, CategoryDto dto)
     {
-        var existing = await _context.Categories.FindAsync(id);
-        if (existing is null) return null;
+        var category = await _context.Categories.FindAsync(id);
+        if (category is null) return null;
+        
+        var existingCategory = await _context.Categories
+            .AnyAsync(x => x.Name == dto.Name && x.Id != id);
 
-        existing.Name = category.Name;
-        existing.Description = category.Description;
+        if (existingCategory)
+        {
+            return CategoryOperationResult.Fail(
+                "Category with this name already exists.",
+                StatusCodes.Status409Conflict);
+        }
+        
+        category.Name = dto.Name;
+        category.Description = dto.Description;
 
         await _context.SaveChangesAsync();
-        return existing;
+        
+        return CategoryOperationResult.Ok(MapToDto(category));
     }
 
     public async Task<bool> DeleteAsync(int id)
     {
-        var existing = await _context.Categories.FindAsync(id);
-        if (existing is null) return false;
+        var category = await _context.Categories
+            .FirstOrDefaultAsync(x => x.Id == id);
 
-        _context.Categories.Remove(existing);
+        if (category == null)
+            return false;
+
+        _context.Categories.Remove(category);
         await _context.SaveChangesAsync();
+
         return true;
     }
 }

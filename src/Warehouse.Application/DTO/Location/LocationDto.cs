@@ -1,9 +1,9 @@
-﻿namespace Warehouse.Application.DTO;
+namespace Warehouse.Application.DTO.Location;
 
-public class AddLocationDto
+public class LocationDto
 {
-    public string WarehouseCode { get; set; } = string.Empty;
     public string Code { get; set; } = string.Empty;
+    public string WarehouseCode { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public bool IsActive { get; set; }
 }
