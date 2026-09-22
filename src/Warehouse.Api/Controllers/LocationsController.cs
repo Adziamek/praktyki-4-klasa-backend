@@ -151,7 +151,17 @@ public class LocationsController : ControllerBase
 
         await _context.SaveChangesAsync();
 
-        return Ok(location);
+        return CreatedAtAction(
+            nameof(GetLocationById),
+            new { id = location.Id },
+            new
+            {
+                location.Id,
+                location.WarehouseId,
+                location.Code,
+                location.Name,
+                location.IsActive
+            });
     }
 
     // DELETE: api/locations/5

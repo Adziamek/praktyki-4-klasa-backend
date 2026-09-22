@@ -9,12 +9,14 @@ using Scalar.AspNetCore;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
+using Warehouse.Application.Interfaces;
 using Warehouse.Application.Validator.Location;
 using Warehouse.Application.Validator.Product;
 using Warehouse.Application.Validator.Warehouse;
 using Warehouse.Domain.Entities;
 using Warehouse.Infrastructure;
 using Warehouse.Infrastructure.Data;
+using Warehouse.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,6 +46,9 @@ builder.Services.AddValidatorsFromAssemblyContaining<RegisterUserDtoValidator>()
 builder.Services.AddValidatorsFromAssemblyContaining<AddLocationValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<AddWarehouseValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<ProductValidator>();
+
+// ---- Services
+builder.Services.AddScoped<IUserService, UserService>();
 
 var jwtKey = builder.Configuration["Jwt:Key"]
     ?? throw new InvalidOperationException("JWT key not found.");
