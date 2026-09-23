@@ -12,5 +12,6 @@ public interface IUserService
     UserMeDto? GetMe(ClaimsPrincipal user);
     Task<string?> LoginAsync(LoginUserDto dto);
     Task<RegisterResultDto> SignupAsync(RegisterUserDto dto);
+    Task<RegisterResultDto> UpdateAsync(int id, UpdateUserDto dto);
     Task<bool> DeleteAsync(int id);
 }

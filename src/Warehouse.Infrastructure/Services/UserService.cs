@@ -85,7 +85,7 @@ public class UserService : IUserService
             new Claim("username", user.Username),
             new Claim(ClaimTypes.Role, user.Role.ToString())
         };
-        
+
         var key = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
 
@@ -110,7 +110,7 @@ public class UserService : IUserService
 
         if (!existingEmail)
             return RegisterResultDto.Fail(
-                "User with this email already exists", 
+                "User with this email already exists",
                 StatusCodes.Status409Conflict);
 
         if (!existingUsername)
@@ -136,6 +136,41 @@ public class UserService : IUserService
         {
             User = user
         };
+    }
+
+    public async Task<RegisterResultDto> UpdateAsync(int id, UpdateUserDto dto)
+    {
+        var user = await _context.Users
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        if (user == null)
+            return RegisterResultDto.Fail(
+                "User does not exist.",
+                StatusCodes.Status404NotFound);
+
+        var existingUsername = await _context.Users
+            .AnyAsync(x => x.Username == dto.Username && x.Id != id);
+
+        if (existingUsername)
+            return RegisterResultDto.Fail(
+                "Username already exists.",
+                StatusCodes.Status409Conflict);
+
+        var existingEmail = await _context.Users
+            .AnyAsync(x => x.Email == dto.Email && x.Id != id);
+
+        if (existingEmail)
+            return RegisterResultDto.Fail(
+                "User with this email already exists.",
+                StatusCodes.Status409Conflict);
+
+        user.Username = dto.Username;
+        user.Email = dto.Email;
+        user.Role = dto.Role;
+
+        await _context.SaveChangesAsync();
+
+        return RegisterResultDto.Ok(user);
     }
 
     public async Task<bool> DeleteAsync(int id)
