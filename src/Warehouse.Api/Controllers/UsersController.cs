@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Warehouse.Domain.Entities;
 using Warehouse.Application.DTO;
+using Warehouse.Application.DTO.Auth;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Warehouse.Infrastructure.Data;
@@ -54,7 +55,7 @@ public class UsersController : ControllerBase
     public IActionResult GetMe()
     {
         var tokenRespone = _userService.GetMe(User);
-        
+
         return Ok(tokenRespone);
     }
 
@@ -109,6 +110,26 @@ public class UsersController : ControllerBase
             });
     }
 
+    // PUT: api/User/5
+    [Authorize(Roles = nameof(UserRole.Administrator))]
+    [HttpPut("{id}")]
+    [EndpointSummary("Updates user in database")]
+    [ProducesResponseType(typeof(User), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<ActionResult<User>> UpdateUser(int id, UpdateUserDto dto)
+    {
+        var result = await _userService.UpdateAsync(id, dto);
+
+        if (result.StatusCode != null)
+            return Problem(
+                title: result.Error,
+                detail: result.Error,
+                statusCode: result.StatusCode);
+
+        return Ok(result.User);
+    }
+
     // DELETE: api/User/5
     [Authorize(Roles = nameof(UserRole.Administrator))]
     [HttpDelete("{id}")]
@@ -118,7 +139,7 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> DeleteUser(int id)
     {
         var deleted = await _userService.DeleteAsync(id);
-        
+
         if (!deleted)
             return NotFound();
 
