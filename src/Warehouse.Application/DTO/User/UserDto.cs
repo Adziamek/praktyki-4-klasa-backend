@@ -1,8 +1,8 @@
 using Warehouse.Domain.Entities;
 
-namespace Warehouse.Application.DTO.Auth;
+namespace Warehouse.Application.DTO.User;
 
-public class UpdateUserDto
+public class UserDto
 {
     public string Username { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;

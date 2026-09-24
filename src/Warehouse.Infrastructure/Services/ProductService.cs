@@ -38,7 +38,7 @@ public class ProductService : IProductService
     }
 
    
-    public async Task<ProductResponseDto?> GetByIdAsync(Guid id)
+    public async Task<ProductResponseDto?> GetByIdAsync(int id)
     {
         var product = await _context.Products
             .AsNoTracking()
@@ -104,9 +104,7 @@ public class ProductService : IProductService
         
     }
 
-    public async Task<ProductOperationResult> UpdateAsync(
-        Guid id,
-        ProductDto dto)
+    public async Task<ProductOperationResult> UpdateAsync(int id, ProductDto dto)
     {
         var product = await _context.Products
             .FirstOrDefaultAsync(x => x.Id == id);
@@ -169,7 +167,7 @@ public class ProductService : IProductService
         
     }
 
-    public async Task<bool> DeleteAsync(Guid id)
+    public async Task<bool> DeleteAsync(int id)
     {
         var product = await _context.Products
             .FirstOrDefaultAsync(x => x.Id == id);

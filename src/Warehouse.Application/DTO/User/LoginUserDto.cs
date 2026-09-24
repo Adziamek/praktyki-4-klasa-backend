@@ -1,4 +1,4 @@
-﻿namespace Warehouse.Application.DTO;
+﻿namespace Warehouse.Application.DTO.User;
 
 public class LoginUserDto
 {

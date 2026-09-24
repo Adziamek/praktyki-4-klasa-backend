@@ -1,7 +1,10 @@
-﻿using Warehouse.Application.DTO;
-using FluentValidation;
+﻿using FluentValidation;
+using Warehouse.Application.DTO.User;
 
-public class RegisterUserDtoValidator : AbstractValidator<RegisterUserDto>
+namespace Warehouse.Application.Validator.User;
+
+public class RegisterUserDtoValidator
+    : AbstractValidator<RegisterUserDto>
 {
     public RegisterUserDtoValidator()
     {

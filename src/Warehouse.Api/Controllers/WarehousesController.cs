@@ -22,16 +22,15 @@ public class WarehousesController : ControllerBase
     // GET: api/warehouses
     [HttpGet]
     [EndpointSummary("Returns all warehouses")]
-    [ProducesResponseType(typeof(IEnumerable<CWarehouse>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<CWarehouse>>> GetWarehouses()
+    [ProducesResponseType(typeof(IEnumerable<Warehouse.Domain.Entities.CWarehouse>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<Warehouse.Domain.Entities.CWarehouse>>> GetWarehouses()
     {
-        var warehouses = await _context.Warehouses.Select(x => new CWarehouse
+        var warehouses = await _context.Warehouses.Select(x => new Warehouse.Domain.Entities.CWarehouse
         {
             Id = x.Id,
             Code = x.Code,
             Name = x.Name,
-            Description = x.Description,
-            IsActive = x.IsActive
+            Active = x.Active
         })
         .OrderBy(x => x.Code)
         .ToListAsync();
@@ -42,9 +41,9 @@ public class WarehousesController : ControllerBase
     // GET: api/warehouses/5
     [HttpGet("{id}")]
     [EndpointSummary("Returns warehouse by id")]
-    [ProducesResponseType(typeof(CWarehouse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Warehouse.Domain.Entities.CWarehouse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<CWarehouse>> GetWarehouseById(int id)
+    public async Task<ActionResult<Warehouse.Domain.Entities.CWarehouse>> GetWarehouseById(int id)
     {
         var warehouse = await _context.Warehouses.FindAsync(id);
 
@@ -63,7 +62,7 @@ public class WarehousesController : ControllerBase
     [EndpointSummary("Adds warehouse to database")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<ActionResult<CWarehouse>> PostWarehouse(AddWarehouseDto dto)
+    public async Task<ActionResult<Warehouse.Domain.Entities.CWarehouse>> PostWarehouse(AddWarehouseDto dto)
     {
         var exists = await _context.Warehouses.AnyAsync(x => x.Code == dto.Code);
 
@@ -73,12 +72,11 @@ public class WarehousesController : ControllerBase
                 detail: "Warehouse with this code already exists.",
                 statusCode: StatusCodes.Status409Conflict);
 
-        var warehouse = new CWarehouse
+        var warehouse = new Warehouse.Domain.Entities.CWarehouse
         {
             Code = dto.Code,
             Name = dto.Name,
-            Description = dto.Description,
-            IsActive = dto.IsActive
+            Active = dto.IsActive
         };
 
         _context.Warehouses.Add(warehouse);
@@ -91,8 +89,7 @@ public class WarehousesController : ControllerBase
             {
                 warehouse.Code,
                 warehouse.Name,
-                warehouse.Description,
-                IsActive = warehouse.IsActive
+                IsActive = warehouse.Active
             });
     }
 
@@ -100,10 +97,10 @@ public class WarehousesController : ControllerBase
     //[Authorize(Roles = nameof(UserRole.Administrator))]
     [HttpPut("{id}")]
     [EndpointSummary("Updates warehouse in database")]
-    [ProducesResponseType(typeof(CWarehouse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Warehouse.Domain.Entities.CWarehouse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<ActionResult<CWarehouse>> PutWarehouse(int id, AddWarehouseDto dto)
+    public async Task<ActionResult<Warehouse.Domain.Entities.CWarehouse>> PutWarehouse(int id, AddWarehouseDto dto)
     {
         var exists = await _context.Warehouses.AnyAsync(x => x.Id != id && x.Code == dto.Code);
 
@@ -123,8 +120,7 @@ public class WarehousesController : ControllerBase
 
         warehouse.Code = dto.Code;
         warehouse.Name = dto.Name;
-        warehouse.Description = dto.Description;
-        warehouse.IsActive = dto.IsActive;
+        warehouse.Active = dto.IsActive;
 
         await _context.SaveChangesAsync();
 

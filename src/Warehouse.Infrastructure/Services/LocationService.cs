@@ -22,9 +22,9 @@ public class LocationService : ILocationService
         {
             Id = location.Id,
             Code = location.Code,
-            WarehouseCode = location.Warehouse.Code,
+            WarehouseCode = location.CWarehouse.Code,
             Name = location.Name,
-            IsActive = location.IsActive
+            IsActive = location.Active
         };
     }
 
@@ -32,7 +32,7 @@ public class LocationService : ILocationService
     {
         var locations = await _context.Locations
             .AsNoTracking()
-            .Include(x => x.Warehouse)
+            .Include(x => x.CWarehouse)
             .ToListAsync();
 
         return locations.Select(MapToDto).ToList();
@@ -42,7 +42,7 @@ public class LocationService : ILocationService
     {
         var location = await _context.Locations
             .AsNoTracking()
-            .Include(x => x.Warehouse)
+            .Include(x => x.CWarehouse)
             .FirstOrDefaultAsync(x => x.Id == id);
 
         return location is null ? null : MapToDto(location);
@@ -83,10 +83,10 @@ public class LocationService : ILocationService
         var location = new Location
         {
             WarehouseId = warehouse.Id,
-            Warehouse = warehouse,
+            CWarehouse = warehouse,
             Code = dto.Code,
             Name = dto.Name,
-            IsActive = dto.IsActive
+            Active = dto.IsActive
         };
 
         _context.Locations.Add(location);
@@ -100,7 +100,7 @@ public class LocationService : ILocationService
         LocationDto dto)
     {
         var location = await _context.Locations
-            .Include(x => x.Warehouse)
+            .Include(x => x.CWarehouse)
             .FirstOrDefaultAsync(x => x.Id == id);
 
         if (location is null)
@@ -142,9 +142,9 @@ public class LocationService : ILocationService
 
         location.Code = dto.Code;
         location.Name = dto.Name;
-        location.IsActive = dto.IsActive;
+        location.Active = dto.IsActive;
         location.WarehouseId = warehouse.Id;
-        location.Warehouse = warehouse;
+        location.CWarehouse = warehouse;
 
         await _context.SaveChangesAsync();
 

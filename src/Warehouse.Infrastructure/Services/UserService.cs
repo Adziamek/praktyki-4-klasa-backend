@@ -1,13 +1,12 @@
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Warehouse.Application.DTO;
-using Warehouse.Application.DTO.Auth;
+using Warehouse.Application.DTO.User;
 using Warehouse.Application.Interfaces;
 using Warehouse.Domain.Entities;
 using Warehouse.Infrastructure.Data;
@@ -30,43 +29,151 @@ public class UserService : IUserService
         _configuration = configuration;
     }
 
-    public async Task<IReadOnlyList<User>> GetAllAsync()
+    private static UserResponseDto MapToDto(User user)
     {
-        return await _context.Users
+        return new UserResponseDto
+        {
+            Id = user.Id,
+            Username = user.Username,
+            Email = user.Email,
+            Role = user.Role,
+            CreatedAt = user.CreatedAt
+        };
+    }
+
+    public async Task<IReadOnlyList<UserResponseDto>> GetAllAsync()
+    {
+        var users = await _context.Users
             .AsNoTracking()
             .ToListAsync();
+
+        return users
+            .Select(MapToDto)
+            .ToList();
     }
 
-    public async Task<User?> GetByIdAsync(int id)
+    public async Task<UserResponseDto?> GetByIdAsync(int id)
     {
-        return await _context.Users.FindAsync(id);
+        var user = await _context.Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        return user is null
+            ? null
+            : MapToDto(user);
     }
 
-    public async Task<User?> GetByUsernameAsync(string username)
+    public async Task<UserOperationResult> AddAsync(
+        RegisterUserDto dto)
     {
-        return await _context.Users.FirstOrDefaultAsync(x => x.Username == username);
-    }
+        var existingUsername = await _context.Users
+            .AnyAsync(x => x.Username == dto.Username);
 
-    public UserMeDto? GetMe(ClaimsPrincipal user)
-    {
-        var id = user.FindFirstValue(ClaimTypes.NameIdentifier);
-        var username = user.FindFirstValue("username");
-        var role = user.FindFirstValue(ClaimTypes.Role);
-
-        if (id == null || username == null || role == null)
-            return null;
-
-        return new UserMeDto
+        if (existingUsername)
         {
-            Id = int.Parse(id),
-            Username = username,
-            Role = role
+            return UserOperationResult.Fail(
+                "Username already exists.",
+                StatusCodes.Status409Conflict);
+        }
+
+        var existingEmail = await _context.Users
+            .AnyAsync(x => x.Email == dto.Email);
+
+        if (existingEmail)
+        {
+            return UserOperationResult.Fail(
+                "User with this email already exists.",
+                StatusCodes.Status409Conflict);
+        }
+
+        var user = new User
+        {
+            Username = dto.Username,
+            Email = dto.Email,
+            Role = UserRole.User,
+            CreatedAt = DateTime.UtcNow
         };
+
+        user.PasswordHash = _passwordHasher.HashPassword(
+            user,
+            dto.Password);
+
+        _context.Users.Add(user);
+
+        await _context.SaveChangesAsync();
+
+        return UserOperationResult.Ok(
+            MapToDto(user));
+    }
+
+    public async Task<UserOperationResult> UpdateAsync(
+        int id,
+        UserDto dto)
+    {
+        var user = await _context.Users
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        if (user == null)
+        {
+            return UserOperationResult.Fail(
+                "User does not exist.",
+                StatusCodes.Status404NotFound);
+        }
+
+        var existingUsername = await _context.Users
+            .AnyAsync(x =>
+                x.Username == dto.Username &&
+                x.Id != id);
+
+        if (existingUsername)
+        {
+            return UserOperationResult.Fail(
+                "Username already exists.",
+                StatusCodes.Status409Conflict);
+        }
+
+        var existingEmail = await _context.Users
+            .AnyAsync(x =>
+                x.Email == dto.Email &&
+                x.Id != id);
+
+        if (existingEmail)
+        {
+            return UserOperationResult.Fail(
+                "User with this email already exists.",
+                StatusCodes.Status409Conflict);
+        }
+
+        user.Username = dto.Username;
+        user.Email = dto.Email;
+        user.Role = dto.Role;
+
+        await _context.SaveChangesAsync();
+
+        return UserOperationResult.Ok(
+            MapToDto(user));
+    }
+
+    public async Task<bool> DeleteAsync(int id)
+    {
+        var user = await _context.Users
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        if (user == null)
+            return false;
+
+        _context.Users.Remove(user);
+
+        await _context.SaveChangesAsync();
+
+        return true;
     }
 
     public async Task<string?> LoginAsync(LoginUserDto dto)
     {
-        var user = await GetByUsernameAsync(dto.Username);
+        var user = await _context.Users
+            .FirstOrDefaultAsync(x =>
+                x.Username == dto.Username);
 
         if (user == null)
             return null;
@@ -81,13 +188,22 @@ public class UserService : IUserService
 
         var claims = new[]
         {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim("username", user.Username),
-            new Claim(ClaimTypes.Role, user.Role.ToString())
+            new Claim(
+                ClaimTypes.NameIdentifier,
+                user.Id.ToString()),
+
+            new Claim(
+                "username",
+                user.Username),
+
+            new Claim(
+                ClaimTypes.Role,
+                user.Role.ToString())
         };
 
         var key = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
+            Encoding.UTF8.GetBytes(
+                _configuration["Jwt:Key"]!));
 
         var credentials = new SigningCredentials(
             key,
@@ -100,89 +216,33 @@ public class UserService : IUserService
             expires: DateTime.UtcNow.AddHours(2),
             signingCredentials: credentials);
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        return new JwtSecurityTokenHandler()
+            .WriteToken(token);
     }
 
-    public async Task<RegisterResultDto> SignupAsync(RegisterUserDto dto)
+    public UserMeDto? GetMe(ClaimsPrincipal user)
     {
-        var existingUsername = await _context.Users.AnyAsync(x => x.Username == dto.Username);
-        var existingEmail = await _context.Users.AnyAsync(x => x.Email == dto.Email);
+        var id = user.FindFirstValue(
+            ClaimTypes.NameIdentifier);
 
-        if (!existingEmail)
-            return RegisterResultDto.Fail(
-                "User with this email already exists",
-                StatusCodes.Status409Conflict);
+        var username = user.FindFirstValue(
+            "username");
 
-        if (!existingUsername)
-            return RegisterResultDto.Fail(
-                "Username already exists",
-                StatusCodes.Status409Conflict);
+        var role = user.FindFirstValue(
+            ClaimTypes.Role);
 
-        var user = new User
+        if (id == null ||
+            username == null ||
+            role == null)
         {
-            Username = dto.Username,
-            Email = dto.Email,
-            CreatedAt = DateTime.UtcNow
-        };
+            return null;
+        }
 
-        user.PasswordHash = _passwordHasher.HashPassword(
-            user,
-            dto.Password);
-
-        _context.Users.Add(user);
-        await _context.SaveChangesAsync();
-
-        return new RegisterResultDto
+        return new UserMeDto
         {
-            User = user
+            Id = int.Parse(id),
+            Username = username,
+            Role = role
         };
-    }
-
-    public async Task<RegisterResultDto> UpdateAsync(int id, UpdateUserDto dto)
-    {
-        var user = await _context.Users
-            .FirstOrDefaultAsync(x => x.Id == id);
-
-        if (user == null)
-            return RegisterResultDto.Fail(
-                "User does not exist.",
-                StatusCodes.Status404NotFound);
-
-        var existingUsername = await _context.Users
-            .AnyAsync(x => x.Username == dto.Username && x.Id != id);
-
-        if (existingUsername)
-            return RegisterResultDto.Fail(
-                "Username already exists.",
-                StatusCodes.Status409Conflict);
-
-        var existingEmail = await _context.Users
-            .AnyAsync(x => x.Email == dto.Email && x.Id != id);
-
-        if (existingEmail)
-            return RegisterResultDto.Fail(
-                "User with this email already exists.",
-                StatusCodes.Status409Conflict);
-
-        user.Username = dto.Username;
-        user.Email = dto.Email;
-        user.Role = dto.Role;
-
-        await _context.SaveChangesAsync();
-
-        return RegisterResultDto.Ok(user);
-    }
-
-    public async Task<bool> DeleteAsync(int id)
-    {
-        var user = await _context.Users.FindAsync(id);
-
-        if (user == null)
-            return false;
-
-        _context.Users.Remove(user);
-        await _context.SaveChangesAsync();
-
-        return true;
     }
 }
