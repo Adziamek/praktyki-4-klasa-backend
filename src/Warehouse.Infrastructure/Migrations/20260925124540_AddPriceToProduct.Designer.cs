@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Warehouse.Infrastructure.Data;
@@ -11,9 +12,11 @@ using Warehouse.Infrastructure.Data;
 namespace Warehouse.Infrastructure.Migrations
 {
     [DbContext(typeof(WarehouseDbContext))]
-    partial class WarehouseDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260925124540_AddPriceToProduct")]
+    partial class AddPriceToProduct
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -269,8 +272,8 @@ namespace Warehouse.Infrastructure.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
 
-                    b.Property<decimal>("UnitPrice")
-                        .HasColumnType("numeric");
+                    b.Property<float>("UnitPrice")
+                        .HasColumnType("real");
 
                     b.HasKey("Id");
 
@@ -497,113 +500,6 @@ namespace Warehouse.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("Stocks");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            LocationId = 1,
-                            ProductId = 1,
-                            Quantity = 10
-                        },
-                        new
-                        {
-                            Id = 2,
-                            LocationId = 2,
-                            ProductId = 1,
-                            Quantity = 5
-                        },
-                        new
-                        {
-                            Id = 3,
-                            LocationId = 2,
-                            ProductId = 2,
-                            Quantity = 8
-                        },
-                        new
-                        {
-                            Id = 4,
-                            LocationId = 1,
-                            ProductId = 3,
-                            Quantity = 15
-                        },
-                        new
-                        {
-                            Id = 5,
-                            LocationId = 3,
-                            ProductId = 3,
-                            Quantity = 7
-                        },
-                        new
-                        {
-                            Id = 6,
-                            LocationId = 3,
-                            ProductId = 4,
-                            Quantity = 12
-                        },
-                        new
-                        {
-                            Id = 7,
-                            LocationId = 1,
-                            ProductId = 5,
-                            Quantity = 20
-                        },
-                        new
-                        {
-                            Id = 8,
-                            LocationId = 2,
-                            ProductId = 5,
-                            Quantity = 10
-                        },
-                        new
-                        {
-                            Id = 9,
-                            LocationId = 2,
-                            ProductId = 6,
-                            Quantity = 6
-                        },
-                        new
-                        {
-                            Id = 10,
-                            LocationId = 1,
-                            ProductId = 7,
-                            Quantity = 9
-                        },
-                        new
-                        {
-                            Id = 11,
-                            LocationId = 3,
-                            ProductId = 7,
-                            Quantity = 4
-                        },
-                        new
-                        {
-                            Id = 12,
-                            LocationId = 2,
-                            ProductId = 8,
-                            Quantity = 14
-                        },
-                        new
-                        {
-                            Id = 13,
-                            LocationId = 1,
-                            ProductId = 9,
-                            Quantity = 11
-                        },
-                        new
-                        {
-                            Id = 14,
-                            LocationId = 3,
-                            ProductId = 9,
-                            Quantity = 6
-                        },
-                        new
-                        {
-                            Id = 15,
-                            LocationId = 3,
-                            ProductId = 10,
-                            Quantity = 18
-                        });
                 });
 
             modelBuilder.Entity("Warehouse.Domain.Entities.User", b =>

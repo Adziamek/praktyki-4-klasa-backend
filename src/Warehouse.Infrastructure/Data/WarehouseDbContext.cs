@@ -186,6 +186,9 @@ public class WarehouseDbContext : DbContext
 
             entity.HasIndex(p => p.Ean)
                 .IsUnique();
+            entity.Property(p => p.Price)
+                .IsRequired()
+                .HasMaxLength(10);
         });
 
         // =========================================================
@@ -432,85 +435,194 @@ public class WarehouseDbContext : DbContext
         // =========================================================
 
         modelBuilder.Entity<Product>().HasData(
+                new
+                {
+                    Id = 1,
+                    Name = "Samsung Galaxy Buds",
+                    Ean = "5901234123457",
+                    CategoryId = 1,
+                    BrandId = 1,
+                    Price = 349.99m
+                },
+                new
+                {
+                    Id = 2,
+                    Name = "Samsung Smart TV 50\"",
+                    Ean = "5901234123458",
+                    CategoryId = 1,
+                    BrandId = 1,
+                    Price = 1149.99m
+                },
+                new
+                {
+                    Id = 3,
+                    Name = "Bosch Robot kuchenny",
+                    Ean = "5901234123459",
+                    CategoryId = 2,
+                    BrandId = 2,
+                    Price = 1999.99m
+                },
+                new
+                {
+                    Id = 4,
+                    Name = "Bosch Ekspres do kawy",
+                    Ean = "5901234123460",
+                    CategoryId = 2,
+                    BrandId = 2,
+                    Price = 3199.99m
+                },
+                new
+                {
+                    Id = 5,
+                    Name = "Logitech Mysz MX Master",
+                    Ean = "5901234123461",
+                    CategoryId = 3,
+                    BrandId = 3,
+                    Price = 219.99m
+                },
+                new
+                {
+                    Id = 6,
+                    Name = "Logitech Klawiatura K380",
+                    Ean = "5901234123462",
+                    CategoryId = 3,
+                    BrandId = 3,
+                    Price = 479.99m
+                },
+                new
+                {
+                    Id = 7,
+                    Name = "Samsung Pralka EcoBubble",
+                    Ean = "5901234123463",
+                    CategoryId = 2,
+                    BrandId = 1,
+                    Price = 2999.99m
+                },
+                new
+                {
+                    Id = 8,
+                    Name = "Bosch Wiertarka udarowa",
+                    Ean = "5901234123464",
+                    CategoryId = 3,
+                    BrandId = 2,
+                    Price = 799.99m
+                },
+                new
+                {
+                    Id = 9,
+                    Name = "Logitech Kamera internetowa C920",
+                    Ean = "5901234123465",
+                    CategoryId = 1,
+                    BrandId = 3,
+                    Price = 179.99m
+                },
+                new
+                {
+                    Id = 10,
+                    Name = "Samsung Monitor 27\"",
+                    Ean = "5901234123466",
+                    CategoryId = 1,
+                    BrandId = 1,
+                    Price = 1699.99m
+                }
+            );
+        modelBuilder.Entity<Stock>().HasData(
             new
             {
-                Id = 1,
-                Name = "Samsung Galaxy Buds",
-                Ean = "5901234123457",
-                CategoryId = 1,
-                BrandId = 1
+                Id = 1,  
+                ProductId = 1,
+                LocationId = 1,
+                Quantity = 10
             },
-            new
-            {
-                Id = 2,
-                Name = "Samsung Smart TV 50\"",
-                Ean = "5901234123458",
-                CategoryId = 1,
-                BrandId = 1
+            new { Id = 2,
+                ProductId = 1, 
+                LocationId = 2, 
+                Quantity = 5 
             },
-            new
-            {
+            new { 
                 Id = 3,
-                Name = "Bosch Robot kuchenny",
-                Ean = "5901234123459",
-                CategoryId = 2,
-                BrandId = 2
+                ProductId = 2,
+                LocationId = 2,
+                Quantity = 8 
             },
-            new
-            {
-                Id = 4,
-                Name = "Bosch Ekspres do kawy",
-                Ean = "5901234123460",
-                CategoryId = 2,
-                BrandId = 2
+            new { 
+                Id = 4, 
+                ProductId = 3,
+                LocationId = 1, 
+                Quantity = 15 
             },
-            new
-            {
-                Id = 5,
-                Name = "Logitech Mysz MX Master",
-                Ean = "5901234123461",
-                CategoryId = 3,
-                BrandId = 3
+            new { 
+                Id = 5, 
+                ProductId = 3, 
+                LocationId = 3,
+                Quantity = 7
+                
             },
-            new
-            {
-                Id = 6,
-                Name = "Logitech Klawiatura K380",
-                Ean = "5901234123462",
-                CategoryId = 3,
-                BrandId = 3
+            new {
+                Id = 6, 
+                ProductId = 4, 
+                LocationId = 3,
+                Quantity = 12 
             },
-            new
-            {
-                Id = 7,
-                Name = "Samsung Pralka EcoBubble",
-                Ean = "5901234123463",
-                CategoryId = 2,
-                BrandId = 1
+            new {
+                Id = 7, 
+                ProductId = 5,
+                LocationId = 1,
+                Quantity = 20 
             },
-            new
-            {
+            new {
                 Id = 8,
-                Name = "Bosch Wiertarka udarowa",
-                Ean = "5901234123464",
-                CategoryId = 3,
-                BrandId = 2
+                ProductId = 5, 
+                LocationId = 2,
+                Quantity = 10
+                
             },
-            new
-            {
+            new { 
                 Id = 9,
-                Name = "Logitech Kamera internetowa C920",
-                Ean = "5901234123465",
-                CategoryId = 1,
-                BrandId = 3
+                ProductId = 6,
+                LocationId = 2, 
+                Quantity = 6 
+            },
+            new { 
+                Id = 10, 
+                ProductId = 7, 
+                LocationId = 1, 
+                Quantity = 9
+                
             },
             new
             {
-                Id = 10,
-                Name = "Samsung Monitor 27\"",
-                Ean = "5901234123466",
-                CategoryId = 1,
-                BrandId = 1
+                Id = 11,
+                ProductId = 7,
+                LocationId = 3,
+                Quantity = 4
+            },
+            new { 
+                Id = 12,
+                ProductId = 8, 
+                LocationId = 2, 
+                Quantity = 14 
+            },
+            new
+            {
+                Id = 13, 
+                ProductId = 9, 
+                LocationId = 1,
+                Quantity = 11
+            },
+            new
+            {
+                Id = 14,
+                ProductId = 9,
+                LocationId = 3,
+                Quantity = 6
+            },
+            new
+            {
+                Id = 15,
+                ProductId = 10, 
+                LocationId = 3,
+                Quantity = 18
             }
         );
     }
