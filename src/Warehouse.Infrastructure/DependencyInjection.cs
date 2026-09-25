@@ -1,6 +1,9 @@
+using FluentValidation;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Warehouse.Application.Interfaces;
+using Warehouse.Domain.Entities;
 using Warehouse.Infrastructure.Data;
 using Warehouse.Infrastructure.Services;
 
@@ -19,6 +22,9 @@ public static class DependencyInjection
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<ICategoryService, CategoryService>();
         services.AddScoped<IBrandService, BrandService>();
+        services.AddScoped<ILocationService, LocationService>();
+
+        services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
         return services;
     }

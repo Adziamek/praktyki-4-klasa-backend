@@ -1,11 +1,12 @@
 using FluentValidation;
-using Warehouse.Application.DTO.Auth;
+using Warehouse.Application.DTO.User;
 
 namespace Warehouse.Application.Validator.User;
 
-public class UpdateUserDtoValidator : AbstractValidator<UpdateUserDto>
+public class UserDtoValidator
+    : AbstractValidator<UserDto>
 {
-    public UpdateUserDtoValidator()
+    public UserDtoValidator()
     {
         RuleFor(x => x.Username)
             .NotEmpty()

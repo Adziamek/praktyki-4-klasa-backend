@@ -12,8 +12,8 @@ using Warehouse.Infrastructure.Data;
 namespace Warehouse.Infrastructure.Migrations
 {
     [DbContext(typeof(WarehouseDbContext))]
-    [Migration("20260922221406_super")]
-    partial class super
+    [Migration("20260924153206_DatabaseRestructure")]
+    partial class DatabaseRestructure
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -34,13 +34,18 @@ namespace Warehouse.Infrastructure.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Description")
-                        .HasColumnType("text");
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("Brands");
 
@@ -73,18 +78,18 @@ namespace Warehouse.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("Active")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -102,17 +107,17 @@ namespace Warehouse.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
+                            Active = true,
+                            City = "Warszawa",
                             Code = "WH-01",
-                            Description = "Główny magazyn centralny",
-                            IsActive = true,
                             Name = "Magazyn Główny Warszawa"
                         },
                         new
                         {
                             Id = 2,
+                            Active = true,
+                            City = "Wrocław",
                             Code = "WH-02",
-                            Description = "Magazyn regionalny",
-                            IsActive = true,
                             Name = "Magazyn Wrocław"
                         });
                 });
@@ -126,13 +131,18 @@ namespace Warehouse.Infrastructure.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Description")
-                        .HasColumnType("text");
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("Categories");
 
@@ -157,6 +167,36 @@ namespace Warehouse.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Warehouse.Domain.Entities.CustomerOrder", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("CustomerOrders");
+                });
+
             modelBuilder.Entity("Warehouse.Domain.Entities.Location", b =>
                 {
                     b.Property<int>("Id")
@@ -165,13 +205,13 @@ namespace Warehouse.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("Active")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -192,34 +232,65 @@ namespace Warehouse.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
+                            Active = true,
                             Code = "A-001",
-                            IsActive = true,
                             Name = "Regał A1",
                             WarehouseId = 1
                         },
                         new
                         {
                             Id = 2,
+                            Active = true,
                             Code = "A-002",
-                            IsActive = true,
                             Name = "Regał A2",
                             WarehouseId = 1
                         },
                         new
                         {
                             Id = 3,
+                            Active = true,
                             Code = "B-001",
-                            IsActive = true,
                             Name = "Regał B1",
                             WarehouseId = 2
                         });
                 });
 
+            modelBuilder.Entity("Warehouse.Domain.Entities.OrderItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.Property<float>("UnitPrice")
+                        .HasColumnType("real");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("OrderItems");
+                });
+
             modelBuilder.Entity("Warehouse.Domain.Entities.Product", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("BrandId")
                         .HasColumnType("integer");
@@ -239,14 +310,19 @@ namespace Warehouse.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("BrandId");
+
                     b.HasIndex("CategoryId");
+
+                    b.HasIndex("Ean")
+                        .IsUnique();
 
                     b.ToTable("Products");
 
                     b.HasData(
                         new
                         {
-                            Id = new Guid("11111111-1111-1111-1111-111111111101"),
+                            Id = 1,
                             BrandId = 1,
                             CategoryId = 1,
                             Ean = "5901234123457",
@@ -254,7 +330,7 @@ namespace Warehouse.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = new Guid("11111111-1111-1111-1111-111111111102"),
+                            Id = 2,
                             BrandId = 1,
                             CategoryId = 1,
                             Ean = "5901234123458",
@@ -262,7 +338,7 @@ namespace Warehouse.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = new Guid("11111111-1111-1111-1111-111111111103"),
+                            Id = 3,
                             BrandId = 2,
                             CategoryId = 2,
                             Ean = "5901234123459",
@@ -270,7 +346,7 @@ namespace Warehouse.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = new Guid("11111111-1111-1111-1111-111111111104"),
+                            Id = 4,
                             BrandId = 2,
                             CategoryId = 2,
                             Ean = "5901234123460",
@@ -278,7 +354,7 @@ namespace Warehouse.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = new Guid("11111111-1111-1111-1111-111111111105"),
+                            Id = 5,
                             BrandId = 3,
                             CategoryId = 3,
                             Ean = "5901234123461",
@@ -286,7 +362,7 @@ namespace Warehouse.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = new Guid("11111111-1111-1111-1111-111111111106"),
+                            Id = 6,
                             BrandId = 3,
                             CategoryId = 3,
                             Ean = "5901234123462",
@@ -294,7 +370,7 @@ namespace Warehouse.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = new Guid("11111111-1111-1111-1111-111111111107"),
+                            Id = 7,
                             BrandId = 1,
                             CategoryId = 2,
                             Ean = "5901234123463",
@@ -302,7 +378,7 @@ namespace Warehouse.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = new Guid("11111111-1111-1111-1111-111111111108"),
+                            Id = 8,
                             BrandId = 2,
                             CategoryId = 3,
                             Ean = "5901234123464",
@@ -310,7 +386,7 @@ namespace Warehouse.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = new Guid("11111111-1111-1111-1111-111111111109"),
+                            Id = 9,
                             BrandId = 3,
                             CategoryId = 1,
                             Ean = "5901234123465",
@@ -318,12 +394,98 @@ namespace Warehouse.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = new Guid("11111111-1111-1111-1111-111111111110"),
+                            Id = 10,
                             BrandId = 1,
                             CategoryId = 1,
                             Ean = "5901234123466",
                             Name = "Samsung Monitor 27\""
                         });
+                });
+
+            modelBuilder.Entity("Warehouse.Domain.Entities.ReturnItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("OrderItemId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ReturnId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderItemId");
+
+                    b.HasIndex("ReturnId");
+
+                    b.ToTable("ReturnItems");
+                });
+
+            modelBuilder.Entity("Warehouse.Domain.Entities.ReturnRequest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("Status");
+
+                    b.ToTable("ReturnRequests");
+                });
+
+            modelBuilder.Entity("Warehouse.Domain.Entities.Stock", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("LocationId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LocationId");
+
+                    b.HasIndex("ProductId", "LocationId")
+                        .IsUnique();
+
+                    b.ToTable("Stocks");
                 });
 
             modelBuilder.Entity("Warehouse.Domain.Entities.User", b =>
@@ -349,7 +511,8 @@ namespace Warehouse.Infrastructure.Migrations
 
                     b.Property<string>("Role")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<string>("Username")
                         .IsRequired()
@@ -367,24 +530,118 @@ namespace Warehouse.Infrastructure.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("Warehouse.Domain.Entities.CustomerOrder", b =>
+                {
+                    b.HasOne("Warehouse.Domain.Entities.User", "User")
+                        .WithMany("Orders")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Warehouse.Domain.Entities.Location", b =>
                 {
-                    b.HasOne("Warehouse.Domain.Entities.CWarehouse", "Warehouse")
+                    b.HasOne("Warehouse.Domain.Entities.CWarehouse", "CWarehouse")
                         .WithMany("Locations")
                         .HasForeignKey("WarehouseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CWarehouse");
+                });
+
+            modelBuilder.Entity("Warehouse.Domain.Entities.OrderItem", b =>
+                {
+                    b.HasOne("Warehouse.Domain.Entities.CustomerOrder", "Order")
+                        .WithMany("Items")
+                        .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Warehouse");
+                    b.HasOne("Warehouse.Domain.Entities.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Order");
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("Warehouse.Domain.Entities.Product", b =>
                 {
-                    b.HasOne("Warehouse.Domain.Entities.Category", null)
+                    b.HasOne("Warehouse.Domain.Entities.Brand", "Brand")
+                        .WithMany("Products")
+                        .HasForeignKey("BrandId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Warehouse.Domain.Entities.Category", "Category")
                         .WithMany("Products")
                         .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Brand");
+
+                    b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("Warehouse.Domain.Entities.ReturnItem", b =>
+                {
+                    b.HasOne("Warehouse.Domain.Entities.OrderItem", "OrderItem")
+                        .WithMany("Returns")
+                        .HasForeignKey("OrderItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Warehouse.Domain.Entities.ReturnRequest", "Return")
+                        .WithMany("Items")
+                        .HasForeignKey("ReturnId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("OrderItem");
+
+                    b.Navigation("Return");
+                });
+
+            modelBuilder.Entity("Warehouse.Domain.Entities.ReturnRequest", b =>
+                {
+                    b.HasOne("Warehouse.Domain.Entities.CustomerOrder", "Order")
+                        .WithMany("Returns")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("Warehouse.Domain.Entities.Stock", b =>
+                {
+                    b.HasOne("Warehouse.Domain.Entities.Location", "Location")
+                        .WithMany("Stocks")
+                        .HasForeignKey("LocationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Warehouse.Domain.Entities.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Location");
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("Warehouse.Domain.Entities.Brand", b =>
+                {
+                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("Warehouse.Domain.Entities.CWarehouse", b =>
@@ -395,6 +652,33 @@ namespace Warehouse.Infrastructure.Migrations
             modelBuilder.Entity("Warehouse.Domain.Entities.Category", b =>
                 {
                     b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("Warehouse.Domain.Entities.CustomerOrder", b =>
+                {
+                    b.Navigation("Items");
+
+                    b.Navigation("Returns");
+                });
+
+            modelBuilder.Entity("Warehouse.Domain.Entities.Location", b =>
+                {
+                    b.Navigation("Stocks");
+                });
+
+            modelBuilder.Entity("Warehouse.Domain.Entities.OrderItem", b =>
+                {
+                    b.Navigation("Returns");
+                });
+
+            modelBuilder.Entity("Warehouse.Domain.Entities.ReturnRequest", b =>
+                {
+                    b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("Warehouse.Domain.Entities.User", b =>
+                {
+                    b.Navigation("Orders");
                 });
 #pragma warning restore 612, 618
         }

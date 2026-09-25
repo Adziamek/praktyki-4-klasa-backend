@@ -1,6 +1,5 @@
-﻿using Warehouse.Domain.Entities;
+﻿namespace Warehouse.Application.DTO.User;
 
-namespace Warehouse.Application.DTO.Auth;
 public class UserMeDto
 {
     public int Id { get; init; }

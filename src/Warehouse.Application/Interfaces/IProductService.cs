@@ -5,10 +5,10 @@ namespace Warehouse.Application.Interfaces;
 public interface IProductService
 {
     Task<IReadOnlyList<ProductResponseDto>> GetAllAsync();
-    Task<ProductResponseDto?> GetByIdAsync(Guid id);
+    Task<ProductResponseDto?> GetByIdAsync(int id);
     Task<ProductOperationResult> AddAsync(ProductDto dto);
-    Task<ProductOperationResult> UpdateAsync(Guid id, ProductDto dto);
-    Task<bool> DeleteAsync(Guid id);
+    Task<ProductOperationResult> UpdateAsync(int id, ProductDto dto);
+    Task<bool> DeleteAsync(int id);
 }
 
 public record ProductOperationResult(ProductResponseDto? Product, string? Error, int? StatusCode)

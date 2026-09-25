@@ -36,6 +36,10 @@ namespace Warehouse.Infrastructure
                 admin,
                 password);
 
+            admin.PasswordHash = passwordHasher.HashPassword(
+                admin,
+                password);
+
             context.Users.Add(admin);
 
             await context.SaveChangesAsync();
