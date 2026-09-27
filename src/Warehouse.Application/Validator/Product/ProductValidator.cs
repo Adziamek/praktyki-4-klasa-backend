@@ -27,6 +27,25 @@ public class ProductValidator : AbstractValidator<ProductDto>
             .NotEmpty()
             .WithMessage("Brand id is required.")
             .GreaterThan(0)
-            .WithMessage("Category ID must be a positive integer.");
+            .WithMessage("Brand ID must be a positive integer.");
+
+        RuleFor(x => x.Locations)
+            .NotEmpty()
+            .WithMessage("At least one location is required.");
+
+        RuleForEach(x => x.Locations)
+            .SetValidator(new ProductLocationValidator());
+
+        RuleFor(x => x.Locations)
+            .Must(HaveUniqueLocations)
+            .WithMessage("A product cannot have the same location more than once.");
+    }
+
+    private static bool HaveUniqueLocations(List<ProductLocationDto> locations)
+    {
+        return locations
+            .Select(x => x.LocationId)
+            .Distinct()
+            .Count() == locations.Count;
     }
 }

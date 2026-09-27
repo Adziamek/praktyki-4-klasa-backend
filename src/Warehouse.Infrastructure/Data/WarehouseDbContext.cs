@@ -205,7 +205,7 @@ public class WarehouseDbContext : DbContext
             entity.HasOne(s => s.Product)
                 .WithMany()
                 .HasForeignKey(s => s.ProductId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasOne(s => s.Location)
                 .WithMany(l => l.Stocks)
@@ -213,11 +213,11 @@ public class WarehouseDbContext : DbContext
                 .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasIndex(s => new
-            {
-                s.ProductId,
-                s.LocationId
-            })
-            .IsUnique();
+                {
+                    s.ProductId,
+                    s.LocationId
+                })
+                .IsUnique();
         });
 
         // =========================================================

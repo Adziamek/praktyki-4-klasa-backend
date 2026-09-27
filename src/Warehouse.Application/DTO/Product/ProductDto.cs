@@ -8,4 +8,5 @@ public class ProductDto
     public int BrandId { get; init; }
     public decimal Price { get; init; }
 
+    public List<ProductLocationDto> Locations { get; init; } = [];
 }

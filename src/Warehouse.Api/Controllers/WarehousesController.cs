@@ -22,10 +22,10 @@ public class WarehousesController : ControllerBase
     // GET: api/warehouses
     [HttpGet]
     [EndpointSummary("Returns all warehouses")]
-    [ProducesResponseType(typeof(IEnumerable<Warehouse.Domain.Entities.CWarehouse>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<Warehouse.Domain.Entities.CWarehouse>>> GetWarehouses()
+    [ProducesResponseType(typeof(IEnumerable<CWarehouse>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<CWarehouse>>> GetWarehouses()
     {
-        var warehouses = await _context.Warehouses.Select(x => new Warehouse.Domain.Entities.CWarehouse
+        var warehouses = await _context.Warehouses.Select(x => new CWarehouse
         {
             Id = x.Id,
             Code = x.Code,
