@@ -161,4 +161,20 @@ public class UsersController : ControllerBase
 
         return Ok(result.User);
     }
+
+    // DELETE: api/users/{id}
+    [Authorize(Roles = nameof(UserRole.Administrator))]
+    [HttpDelete("{id}")]
+    [EndpointSummary("Deletes user")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteUser(int id)
+    {
+        var deleted = await _userService.DeleteAsync(id);
+
+        if (!deleted)
+            return NotFound();
+
+        return NoContent();
+    }
 }
