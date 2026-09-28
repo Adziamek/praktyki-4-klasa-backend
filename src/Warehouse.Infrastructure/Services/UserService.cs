@@ -106,20 +106,11 @@ public class UserService : IUserService
             MapToDto(user));
     }
 
+    // --- UpdateAsync: wersja z ExecuteUpdateAsync (bez śledzenia zmian) ---
     public async Task<UserOperationResult> UpdateAsync(
         int id,
         UserDto dto)
     {
-        var user = await _context.Users
-            .FirstOrDefaultAsync(x => x.Id == id);
-
-        if (user == null)
-        {
-            return UserOperationResult.Fail(
-                "User does not exist.",
-                StatusCodes.Status404NotFound);
-        }
-
         var existingUsername = await _context.Users
             .AnyAsync(x =>
                 x.Username == dto.Username &&
@@ -144,29 +135,42 @@ public class UserService : IUserService
                 StatusCodes.Status409Conflict);
         }
 
-        user.Username = dto.Username;
-        user.Email = dto.Email;
-        user.Role = dto.Role;
+        // ExecuteUpdateAsync generuje bezpośrednio SQL UPDATE,
+        // bez pobierania encji do pamięci i bez ChangeTrackera.
+        var updatedRows = await _context.Users
+            .Where(x => x.Id == id)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(u => u.Username, dto.Username)
+                .SetProperty(u => u.Email, dto.Email)
+                .SetProperty(u => u.Role, dto.Role));
 
-        await _context.SaveChangesAsync();
+        // ExecuteUpdateAsync zwraca liczbę zmienionych wierszy —
+        // 0 oznacza, że taki użytkownik nie istniał.
+        if (updatedRows == 0)
+        {
+            return UserOperationResult.Fail(
+                "User does not exist.",
+                StatusCodes.Status404NotFound);
+        }
+
+        var updatedUser = await _context.Users
+            .AsNoTracking()
+            .FirstAsync(x => x.Id == id);
 
         return UserOperationResult.Ok(
-            MapToDto(user));
+            MapToDto(updatedUser));
     }
 
+    // --- DeleteAsync: wersja z ExecuteDeleteAsync (bez śledzenia zmian) ---
     public async Task<bool> DeleteAsync(int id)
     {
-        var user = await _context.Users
-            .FirstOrDefaultAsync(x => x.Id == id);
+        // ExecuteDeleteAsync generuje bezpośrednio SQL DELETE,
+        // bez pobierania encji i bez Remove()/SaveChangesAsync().
+        var deletedRows = await _context.Users
+            .Where(x => x.Id == id)
+            .ExecuteDeleteAsync();
 
-        if (user == null)
-            return false;
-
-        _context.Users.Remove(user);
-
-        await _context.SaveChangesAsync();
-
-        return true;
+        return deletedRows > 0;
     }
 
     public async Task<string?> LoginAsync(LoginUserDto dto)
