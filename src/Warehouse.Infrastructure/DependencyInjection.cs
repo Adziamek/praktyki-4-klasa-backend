@@ -23,6 +23,7 @@ public static class DependencyInjection
         services.AddScoped<ICategoryService, CategoryService>();
         services.AddScoped<IBrandService, BrandService>();
         services.AddScoped<ILocationService, LocationService>();
+        services.AddScoped<ICustomerOrderService, CustomerOrderService>();
 
         services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 

@@ -2,9 +2,11 @@ using Warehouse.Application.DTO.CustomerOrder;
 
 namespace Warehouse.Application.Interfaces;
 
-public class ICustomerOrderService
+public interface ICustomerOrderService
 {
-    
+    Task<IReadOnlyList<CustomerOrderResponseDto>> GetAllAsync();
+    Task<CustomerOrderResponseDto?> GetByIdAsync(int id);
+    Task<CustomerOrderOperationResult> AddAsync(CustomerOrderDto dto);
 }
 public record CustomerOrderOperationResult(CustomerOrderResponseDto? CustomerOrder, string? Error, int? StatusCode)
 {

@@ -11,4 +11,5 @@ public class Product
 
     public int BrandId { get; set; }
     public Brand Brand { get; set; } = null!;
+    public decimal Price { get; set; }
 }
