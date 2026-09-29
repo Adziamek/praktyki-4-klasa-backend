@@ -8,14 +8,22 @@ public interface ILocationService
     Task<LocationResponseDto?> GetByIdAsync(int id);
     Task<LocationOperationResult> AddAsync(LocationDto dto);
     Task<LocationOperationResult> UpdateAsync(int id, LocationDto dto);
-    Task<bool> DeleteAsync(int id);
+    Task<LocationOperationResult> DeleteAsync(int id);
 }
 
-public record LocationOperationResult(LocationResponseDto? Location, string? Error, int? StatusCode)
+public record LocationOperationResult(
+    LocationResponseDto? Location,
+    string? Error,
+    int? StatusCode)
 {
-    public bool Success => Location != null;
+    public bool Success => Error == null;
+
+    public static LocationOperationResult Ok() =>
+        new(null, null, null);
+
     public static LocationOperationResult Ok(LocationResponseDto location) =>
         new(location, null, null);
+
     public static LocationOperationResult Fail(string error, int statusCode) =>
         new(null, error, statusCode);
 }

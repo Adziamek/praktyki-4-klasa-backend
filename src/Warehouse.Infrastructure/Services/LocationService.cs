@@ -151,17 +151,22 @@ public class LocationService : ILocationService
         return LocationOperationResult.Ok(MapToDto(location));
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<LocationOperationResult> DeleteAsync(int id)
     {
         var location = await _context.Locations
             .FirstOrDefaultAsync(x => x.Id == id);
 
         if (location is null)
-            return false;
+            return LocationOperationResult.Fail("Location not found.", StatusCodes.Status404NotFound);
+
+        var hasStock = await _context.Stocks.AnyAsync(x => x.LocationId == id);
+
+        if (hasStock)
+            return LocationOperationResult.Fail("Cannot delete location because it contains products.", StatusCodes.Status409Conflict);
 
         _context.Locations.Remove(location);
         await _context.SaveChangesAsync();
 
-        return true;
+        return LocationOperationResult.Ok();
     }
 }
