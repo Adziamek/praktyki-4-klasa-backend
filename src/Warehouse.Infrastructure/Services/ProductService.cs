@@ -324,17 +324,22 @@ public class ProductService : IProductService
             locations));
 }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<ProductOperationResult> DeleteAsync(int id)
     {
         var product = await _context.Products
             .FirstOrDefaultAsync(x => x.Id == id);
 
         if (product is null)
-            return false;
+            return ProductOperationResult.Fail("Product not found.", StatusCodes.Status404NotFound);
+
+        var ordered = await _context.OrderItems.AnyAsync(x => x.ProductId == id);
+
+        if (ordered)
+            return ProductOperationResult.Fail("Cannot delete product because it is ordered.", StatusCodes.Status409Conflict);
 
         _context.Products.Remove(product);
         await _context.SaveChangesAsync();
 
-        return true;
+        return ProductOperationResult.Ok();
     }
 }

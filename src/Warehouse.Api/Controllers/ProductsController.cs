@@ -103,11 +103,16 @@
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteProduct(int id)
         {
-            var deleted = await _productService.DeleteAsync(id);
+            var result = await _productService.DeleteAsync(id);
 
-            if (!deleted)
-                return NotFound();
-
-            return NoContent();
+            if (result.Success)
+                return NoContent();
+            else
+            {
+            return Problem(
+                title: result.Error,
+                detail: result.Error,
+                statusCode: result.StatusCode);
+            }
         }
     }

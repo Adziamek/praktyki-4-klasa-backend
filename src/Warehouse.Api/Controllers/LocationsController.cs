@@ -58,6 +58,16 @@ public class LocationsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<LocationResponseDto>> AddLocation(LocationDto dto)
     {
+        _logger.LogDebug(
+            "Adding product: {dto}",
+            dto);
+
+        _logger.LogDebug(
+            "Adding location: {Name}, Code: {Code}, Warehouse: {WarehouseCode}",
+            dto.Name,
+            dto.Code,
+            dto.WarehouseCode);
+
         var validationResult = await _validator.ValidateAsync(dto);
 
         if (!validationResult.IsValid)
@@ -71,12 +81,6 @@ public class LocationsController : ControllerBase
 
             return ValidationProblem(ModelState);
         }
-
-        _logger.LogDebug(
-            "Adding location: {Name}, Code: {Code}, Warehouse: {WarehouseCode}",
-            dto.Name,
-            dto.Code,
-            dto.WarehouseCode);
 
         var result = await _locationService.AddAsync(dto);
 
@@ -141,11 +145,16 @@ public class LocationsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteLocation(int id)
     {
-        var deleted = await _locationService.DeleteAsync(id);
+        var result = await _locationService.DeleteAsync(id);
 
-        if (!deleted)
-            return NotFound();
-
-        return NoContent();
+        if (result.Success)
+            return NoContent();
+        else
+        {
+            return Problem(
+                title: result.Error,
+                detail: result.Error,
+                statusCode: result.StatusCode);
+        }
     }
 }

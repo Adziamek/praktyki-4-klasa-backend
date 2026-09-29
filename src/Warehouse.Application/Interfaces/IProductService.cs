@@ -8,14 +8,21 @@ public interface IProductService
     Task<ProductResponseDto?> GetByIdAsync(int id);
     Task<ProductOperationResult> AddAsync(ProductDto dto);
     Task<ProductOperationResult> UpdateAsync(int id, ProductDto dto);
-    Task<bool> DeleteAsync(int id);
+    Task<ProductOperationResult> DeleteAsync(int id);
 }
 
-public record ProductOperationResult(ProductResponseDto? Product, string? Error, int? StatusCode)
+public record ProductOperationResult(
+    ProductResponseDto? Product, 
+    string? Error, 
+    int? StatusCode)
 {
-    public bool Success => Product != null;
+    public bool Success => Error == null;
+    public static ProductOperationResult Ok() =>
+        new(null, null, null);
+
     public static ProductOperationResult Ok(ProductResponseDto product) =>
         new(product, null, null);
+
     public static ProductOperationResult Fail(string error, int statusCode) =>
         new(null, error, statusCode);
 }
