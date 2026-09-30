@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Warehouse.Application.Common;
 using Warehouse.Application.DTO.Location;
 using Warehouse.Application.Interfaces;
 using Warehouse.Domain.Entities;
@@ -48,14 +49,14 @@ public class LocationService : ILocationService
         return location is null ? null : MapToDto(location);
     }
 
-    public async Task<LocationOperationResult> AddAsync(LocationDto dto)
+    public async Task<OperationResult<LocationResponseDto>> AddAsync(LocationDto dto)
     {
         var warehouse = await _context.Warehouses
             .FirstOrDefaultAsync(x => x.Code == dto.WarehouseCode);
 
         if (warehouse is null)
         {
-            return LocationOperationResult.Fail(
+            return OperationResult<LocationResponseDto>.Fail(
                 $"Warehouse with code {dto.WarehouseCode} does not exist.",
                 StatusCodes.Status404NotFound);
         }
@@ -65,7 +66,7 @@ public class LocationService : ILocationService
 
         if (existingName)
         {
-            return LocationOperationResult.Fail(
+            return OperationResult<LocationResponseDto>.Fail(
                 "Location with this name already exists.",
                 StatusCodes.Status409Conflict);
         }
@@ -75,7 +76,7 @@ public class LocationService : ILocationService
 
         if (existingCode)
         {
-            return LocationOperationResult.Fail(
+            return OperationResult<LocationResponseDto>.Fail(
                 "Location with this code already exists.",
                 StatusCodes.Status409Conflict);
         }
@@ -92,10 +93,10 @@ public class LocationService : ILocationService
         _context.Locations.Add(location);
         await _context.SaveChangesAsync();
 
-        return LocationOperationResult.Ok(MapToDto(location));
+        return OperationResult<LocationResponseDto>.Ok(MapToDto(location));
     }
 
-    public async Task<LocationOperationResult> UpdateAsync(
+    public async Task<OperationResult<LocationResponseDto>> UpdateAsync(
         int id,
         LocationDto dto)
     {
@@ -105,7 +106,7 @@ public class LocationService : ILocationService
 
         if (location is null)
         {
-            return LocationOperationResult.Fail(
+            return OperationResult<LocationResponseDto>.Fail(
                 "Location does not exist.",
                 StatusCodes.Status404NotFound);
         }
@@ -115,7 +116,7 @@ public class LocationService : ILocationService
 
         if (warehouse is null)
         {
-            return LocationOperationResult.Fail(
+            return OperationResult<LocationResponseDto>.Fail(
                 $"Warehouse with code {dto.WarehouseCode} does not exist.",
                 StatusCodes.Status404NotFound);
         }
@@ -125,7 +126,7 @@ public class LocationService : ILocationService
 
         if (existingName)
         {
-            return LocationOperationResult.Fail(
+            return OperationResult<LocationResponseDto>.Fail(
                 "Location with this name already exists.",
                 StatusCodes.Status409Conflict);
         }
@@ -135,7 +136,7 @@ public class LocationService : ILocationService
 
         if (existingCode)
         {
-            return LocationOperationResult.Fail(
+            return OperationResult<LocationResponseDto>.Fail(
                 "Location with this code already exists.",
                 StatusCodes.Status409Conflict);
         }
@@ -148,25 +149,25 @@ public class LocationService : ILocationService
 
         await _context.SaveChangesAsync();
 
-        return LocationOperationResult.Ok(MapToDto(location));
+        return OperationResult<LocationResponseDto>.Ok(MapToDto(location));
     }
 
-    public async Task<LocationOperationResult> DeleteAsync(int id)
+    public async Task<OperationResult> DeleteAsync(int id)
     {
         var location = await _context.Locations
             .FirstOrDefaultAsync(x => x.Id == id);
 
         if (location is null)
-            return LocationOperationResult.Fail("Location not found.", StatusCodes.Status404NotFound);
+            return OperationResult.Fail("Location not found.", StatusCodes.Status404NotFound);
 
         var hasStock = await _context.Stocks.AnyAsync(x => x.LocationId == id);
 
         if (hasStock)
-            return LocationOperationResult.Fail("Cannot delete location because it contains products.", StatusCodes.Status409Conflict);
+            return OperationResult.Fail("Cannot delete location because it contains products.", StatusCodes.Status409Conflict);
 
         _context.Locations.Remove(location);
         await _context.SaveChangesAsync();
 
-        return LocationOperationResult.Ok();
+        return OperationResult.Ok();
     }
 }

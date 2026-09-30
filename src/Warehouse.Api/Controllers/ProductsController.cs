@@ -67,7 +67,7 @@
                     statusCode: result.StatusCode);
             }
 
-            var product = result.Product!;
+            var product = result.Data!;
 
             return CreatedAtAction(
                 nameof(GetProductById),
@@ -93,7 +93,7 @@
                     statusCode: result.StatusCode);
             }
 
-            return Ok(result.Product);
+            return Ok(result.Data);
         }
 
         // DELETE: api/products/{id}

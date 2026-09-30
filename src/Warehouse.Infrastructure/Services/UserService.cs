@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Warehouse.Application.Common;
 using Warehouse.Application.DTO.User;
 using Warehouse.Application.Interfaces;
 using Warehouse.Domain.Entities;
@@ -63,7 +64,7 @@ public class UserService : IUserService
             : MapToDto(user);
     }
 
-    public async Task<UserOperationResult> AddAsync(
+    public async Task<OperationResult<UserResponseDto>> AddAsync(
         RegisterUserDto dto)
     {
         var existingUsername = await _context.Users
@@ -71,7 +72,7 @@ public class UserService : IUserService
 
         if (existingUsername)
         {
-            return UserOperationResult.Fail(
+            return OperationResult<UserResponseDto>.Fail(
                 "Username already exists.",
                 StatusCodes.Status409Conflict);
         }
@@ -81,7 +82,7 @@ public class UserService : IUserService
 
         if (existingEmail)
         {
-            return UserOperationResult.Fail(
+            return OperationResult<UserResponseDto>.Fail(
                 "User with this email already exists.",
                 StatusCodes.Status409Conflict);
         }
@@ -102,12 +103,12 @@ public class UserService : IUserService
 
         await _context.SaveChangesAsync();
 
-        return UserOperationResult.Ok(
+        return OperationResult<UserResponseDto>.Ok(
             MapToDto(user));
     }
 
     // --- UpdateAsync: wersja z ExecuteUpdateAsync (bez śledzenia zmian) ---
-    public async Task<UserOperationResult> UpdateAsync(
+    public async Task<OperationResult<UserResponseDto>> UpdateAsync(
         int id,
         UserDto dto)
     {
@@ -118,7 +119,7 @@ public class UserService : IUserService
 
         if (existingUsername)
         {
-            return UserOperationResult.Fail(
+            return OperationResult<UserResponseDto>.Fail(
                 "Username already exists.",
                 StatusCodes.Status409Conflict);
         }
@@ -130,7 +131,7 @@ public class UserService : IUserService
 
         if (existingEmail)
         {
-            return UserOperationResult.Fail(
+            return OperationResult<UserResponseDto>.Fail(
                 "User with this email already exists.",
                 StatusCodes.Status409Conflict);
         }
@@ -148,7 +149,7 @@ public class UserService : IUserService
         // 0 oznacza, że taki użytkownik nie istniał.
         if (updatedRows == 0)
         {
-            return UserOperationResult.Fail(
+            return OperationResult<UserResponseDto>.Fail(
                 "User does not exist.",
                 StatusCodes.Status404NotFound);
         }
@@ -157,20 +158,24 @@ public class UserService : IUserService
             .AsNoTracking()
             .FirstAsync(x => x.Id == id);
 
-        return UserOperationResult.Ok(
+        return OperationResult<UserResponseDto>.Ok(
             MapToDto(updatedUser));
     }
 
-    // --- DeleteAsync: wersja z ExecuteDeleteAsync (bez śledzenia zmian) ---
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<OperationResult> DeleteAsync(int id)
     {
-        // ExecuteDeleteAsync generuje bezpośrednio SQL DELETE,
-        // bez pobierania encji i bez Remove()/SaveChangesAsync().
         var deletedRows = await _context.Users
             .Where(x => x.Id == id)
             .ExecuteDeleteAsync();
 
-        return deletedRows > 0;
+        if (deletedRows == 0)
+        {
+            return OperationResult.Fail(
+                "User does not exist.",
+                StatusCodes.Status404NotFound);
+        }
+
+        return OperationResult.Ok();
     }
 
     public async Task<string?> LoginAsync(LoginUserDto dto)

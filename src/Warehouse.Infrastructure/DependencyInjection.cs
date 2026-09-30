@@ -24,6 +24,7 @@ public static class DependencyInjection
         services.AddScoped<IBrandService, BrandService>();
         services.AddScoped<ILocationService, LocationService>();
         services.AddScoped<ICustomerOrderService, CustomerOrderService>();
+        services.AddScoped<IReturnRequestService, ReturnRequestService>();
 
         services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 

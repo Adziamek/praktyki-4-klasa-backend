@@ -1,3 +1,4 @@
+using Warehouse.Application.Common;
 using Warehouse.Application.DTO.Product;
 
 namespace Warehouse.Application.Interfaces;
@@ -6,23 +7,9 @@ public interface IProductService
 {
     Task<IReadOnlyList<ProductResponseDto>> GetAllAsync();
     Task<ProductResponseDto?> GetByIdAsync(int id);
-    Task<ProductOperationResult> AddAsync(ProductDto dto);
-    Task<ProductOperationResult> UpdateAsync(int id, ProductDto dto);
-    Task<ProductOperationResult> DeleteAsync(int id);
-}
 
-public record ProductOperationResult(
-    ProductResponseDto? Product, 
-    string? Error, 
-    int? StatusCode)
-{
-    public bool Success => Error == null;
-    public static ProductOperationResult Ok() =>
-        new(null, null, null);
+    Task<OperationResult<ProductResponseDto>> AddAsync(ProductDto dto);
+    Task<OperationResult<ProductResponseDto>> UpdateAsync(int id, ProductDto dto);
 
-    public static ProductOperationResult Ok(ProductResponseDto product) =>
-        new(product, null, null);
-
-    public static ProductOperationResult Fail(string error, int statusCode) =>
-        new(null, error, statusCode);
+    Task<OperationResult> DeleteAsync(int id);
 }

@@ -61,7 +61,7 @@ public class CustomerOrdersController : ControllerBase
                 statusCode: result.StatusCode);
         }
 
-        var customerOrder = result.CustomerOrder!;
+        var customerOrder = result.Data!;
 
         return CreatedAtAction(
             nameof(GetCustomerOrderById),

@@ -125,7 +125,7 @@ public class UsersController : ControllerBase
                 statusCode: result.StatusCode);
         }
 
-        var user = result.User!;
+        var user = result.Data!;
 
         return CreatedAtAction(
             nameof(GetUserById),
@@ -159,7 +159,7 @@ public class UsersController : ControllerBase
                 statusCode: result.StatusCode);
         }
 
-        return Ok(result.User);
+        return Ok(result.Data);
     }
 
     // DELETE: api/users/{id}
@@ -172,7 +172,7 @@ public class UsersController : ControllerBase
     {
         var deleted = await _userService.DeleteAsync(id);
 
-        if (!deleted)
+        if (!deleted.Success)
             return NotFound();
 
         return NoContent();

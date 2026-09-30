@@ -66,7 +66,7 @@ public class BrandsController : ControllerBase
                 statusCode: result.StatusCode);
         }
 
-        var brand = result.Brand!;
+        var brand = result.Data!;
 
         return CreatedAtAction(
             nameof(GetBrandById),
@@ -94,7 +94,7 @@ public class BrandsController : ControllerBase
                 statusCode: result.StatusCode);
         }
 
-        return Ok(result.Brand);
+        return Ok(result.Data);
     }
 
     // DELETE: api/brands/{id}
@@ -106,7 +106,7 @@ public class BrandsController : ControllerBase
     {
         var deleted = await _brandService.DeleteAsync(id);
 
-        if (!deleted)
+        if (!deleted.Success)
             return NotFound();
 
         return NoContent();

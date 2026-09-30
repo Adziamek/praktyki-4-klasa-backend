@@ -92,7 +92,7 @@ public class LocationsController : ControllerBase
                 statusCode: result.StatusCode);
         }
 
-        var location = result.Location!;
+        var location = result.Data!;
 
         return CreatedAtAction(
             nameof(GetLocationById),
@@ -135,7 +135,7 @@ public class LocationsController : ControllerBase
                 statusCode: result.StatusCode);
         }
 
-        return Ok(result.Location);
+        return Ok(result.Data);
     }
 
     // DELETE: api/locations/{id}

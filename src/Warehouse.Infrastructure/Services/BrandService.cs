@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Warehouse.Application.Common;
 using Warehouse.Application.DTO.Brand;
 using Warehouse.Application.Interfaces;
 using Warehouse.Domain.Entities;
@@ -35,7 +36,7 @@ public class BrandService : IBrandService
         return brands.Select(MapToDto).ToList();    
     }
 
-    public async Task<BrandResponseDto?> GetByIdAsync(int id)
+    public async Task<BrandResponseDto> GetByIdAsync(int id)
     {
         var brand = await _context.Brands
             .AsNoTracking()
@@ -44,14 +45,14 @@ public class BrandService : IBrandService
         return brand is null ? null : MapToDto(brand);
     }
 
-    public async Task<BrandOperationResult> AddAsync(BrandDto dto)
+    public async Task<OperationResult<BrandResponseDto>> AddAsync(BrandDto dto)
     {
         var existingBrand = await _context.Brands
             .AnyAsync(x => x.Name == dto.Name);
 
         if (existingBrand)
         {
-            return BrandOperationResult.Fail(
+            return OperationResult<BrandResponseDto>.Fail(
                 "Brand with this name already exists.",
                 StatusCodes.Status409Conflict);
         }
@@ -65,10 +66,10 @@ public class BrandService : IBrandService
         _context.Brands.Add(brand);
         await _context.SaveChangesAsync();
 
-        return BrandOperationResult.Ok(MapToDto(brand));
+        return OperationResult<BrandResponseDto>.Ok(MapToDto(brand));
     }
 
-    public async Task<BrandOperationResult?> UpdateAsync(int id, BrandDto dto)
+    public async Task<OperationResult<BrandResponseDto>> UpdateAsync(int id, BrandDto dto)
     {
         var brand = await _context.Brands.FindAsync(id);
         if (brand is null) return null;
@@ -78,7 +79,7 @@ public class BrandService : IBrandService
 
         if (existingBrand)
         {
-            return BrandOperationResult.Fail(
+            return OperationResult<BrandResponseDto>.Fail(
                 "Brand with this name already exists.",
                 StatusCodes.Status409Conflict);
         }
@@ -88,20 +89,22 @@ public class BrandService : IBrandService
 
         await _context.SaveChangesAsync();
         
-        return BrandOperationResult.Ok(MapToDto(brand));
+        return OperationResult<BrandResponseDto>.Ok(MapToDto(brand));
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<OperationResult> DeleteAsync(int id)
     {
         var brand = await _context.Brands
             .FirstOrDefaultAsync(x => x.Id == id);
 
         if (brand == null)
-            return false;
-
+            return OperationResult.Fail(
+                "Brand not found",
+                404);
         _context.Brands.Remove(brand);
         await _context.SaveChangesAsync();
+        
+        return OperationResult.Ok();
 
-        return true;
     }
 }

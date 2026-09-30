@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Warehouse.Application.Common;
 using Warehouse.Application.DTO.CustomerOrder;
 using Warehouse.Application.Interfaces;
 using Warehouse.Domain.Entities;
@@ -62,18 +63,18 @@ public class CustomerOrderService : ICustomerOrderService
             : MapToDto(customerOrder);
     }
 
-    public async Task<CustomerOrderOperationResult> AddAsync(CustomerOrderDto dto)
+    public async Task<OperationResult<CustomerOrderResponseDto>> AddAsync(CustomerOrderDto dto)
     {
         if (dto.Items.Count == 0)
         {
-            return CustomerOrderOperationResult.Fail(
+            return OperationResult<CustomerOrderResponseDto>.Fail(
                 "Order must contain at least one item.",StatusCodes.Status400BadRequest);
         }
         foreach (var item in dto.Items)
         {
             if (item.Quantity <= 0)
             {
-                return CustomerOrderOperationResult.Fail(
+                return OperationResult<CustomerOrderResponseDto>.Fail(
                     "Quantity must be greater than 0.",StatusCodes.Status400BadRequest);
             }
         }
@@ -88,7 +89,7 @@ public class CustomerOrderService : ICustomerOrderService
         {
             if (!products.ContainsKey(productId))
             {
-                return CustomerOrderOperationResult.Fail(
+                return OperationResult<CustomerOrderResponseDto>.Fail(
                     $"Product with id {productId} does not exist.",StatusCodes.Status404NotFound);
             }
         }
@@ -112,7 +113,7 @@ public class CustomerOrderService : ICustomerOrderService
 
             if (availableQuantity < item.Quantity)
             {
-                return CustomerOrderOperationResult.Fail(
+                return OperationResult<CustomerOrderResponseDto>.Fail(
                     $"Not enough stock for product " +
                     $"{item.ProductId}. " +
                     $"Available: {availableQuantity}, " +
@@ -160,7 +161,7 @@ public class CustomerOrderService : ICustomerOrderService
         }
         await _context.SaveChangesAsync();
         
-        return CustomerOrderOperationResult.Ok(
+        return OperationResult<CustomerOrderResponseDto>.Ok(
             MapToDto(customerOrder));
     }
 }

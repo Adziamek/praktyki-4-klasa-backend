@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Warehouse.Application.Common;
 using Warehouse.Application.DTO.Category;
 using Warehouse.Application.Interfaces;
 using Warehouse.Domain.Entities;
@@ -44,14 +45,14 @@ public class CategoryService : ICategoryService
         return category is null ? null : MapToDto(category);
     }
 
-    public async Task<CategoryOperationResult> AddAsync(CategoryDto dto)
+    public async Task<OperationResult<CategoryResponseDto>> AddAsync(CategoryDto dto)
     {
         var existingcategory = await _context.Categories
             .AnyAsync(x => x.Name == dto.Name);
 
         if (existingcategory)
         {
-            return CategoryOperationResult.Fail(
+            return OperationResult<CategoryResponseDto>.Fail(
                 "Category with this name already exists.",
                 StatusCodes.Status409Conflict);
         }
@@ -65,10 +66,10 @@ public class CategoryService : ICategoryService
         _context.Categories.Add(category);
         await _context.SaveChangesAsync();
 
-        return CategoryOperationResult.Ok(MapToDto(category));
+        return OperationResult<CategoryResponseDto>.Ok(MapToDto(category));
     }
 
-    public async Task<CategoryOperationResult?> UpdateAsync(int id, CategoryDto dto)
+    public async Task<OperationResult<CategoryResponseDto>> UpdateAsync(int id, CategoryDto dto)
     {
         var category = await _context.Categories.FindAsync(id);
         if (category is null) return null;
@@ -78,7 +79,7 @@ public class CategoryService : ICategoryService
 
         if (existingCategory)
         {
-            return CategoryOperationResult.Fail(
+            return OperationResult<CategoryResponseDto>.Fail(
                 "Category with this name already exists.",
                 StatusCodes.Status409Conflict);
         }
@@ -88,20 +89,23 @@ public class CategoryService : ICategoryService
 
         await _context.SaveChangesAsync();
         
-        return CategoryOperationResult.Ok(MapToDto(category));
+        return OperationResult<CategoryResponseDto>.Ok(MapToDto(category));
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<OperationResult> DeleteAsync(int id)
     {
         var category = await _context.Categories
             .FirstOrDefaultAsync(x => x.Id == id);
 
         if (category == null)
-            return false;
-
+            return OperationResult.Fail(
+                "Category not found",
+                404);
+        
         _context.Categories.Remove(category);
         await _context.SaveChangesAsync();
 
-        return true;
+    return OperationResult.Ok();
+    
     }
 }

@@ -66,7 +66,7 @@ public class CategoriesController : ControllerBase
                 statusCode: result.StatusCode);
         }
 
-        var Category = result.Category!;
+        var Category = result.Data!;
 
         return CreatedAtAction(
             nameof(GetCategoryById),
@@ -94,7 +94,7 @@ public class CategoriesController : ControllerBase
                 statusCode: result.StatusCode);
         }
 
-        return Ok(result.Category);
+        return Ok(result.Data);
     }
 
     // DELETE: api/Categorys/{id}
@@ -106,7 +106,7 @@ public class CategoriesController : ControllerBase
     {
         var deleted = await _categoryService.DeleteAsync(id);
 
-        if (!deleted)
+        if (!deleted.Success)
             return NotFound();
 
         return NoContent();

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Warehouse.Application.Common;
 using Warehouse.Application.DTO.Product;
 using Warehouse.Application.Interfaces;
 using Warehouse.Domain.Entities;
@@ -95,14 +96,14 @@ public class ProductService : IProductService
             locations);
     }
 
-        public async Task<ProductOperationResult> AddAsync(ProductDto dto)
+        public async Task<OperationResult<ProductResponseDto>> AddAsync(ProductDto dto)
 {
     var existingProduct = await _context.Products
         .AnyAsync(x => x.Name == dto.Name);
 
     if (existingProduct)
     {
-        return ProductOperationResult.Fail(
+        return OperationResult<ProductResponseDto>.Fail(
             "Product with this name already exists.",
             StatusCodes.Status409Conflict);
     }
@@ -112,7 +113,7 @@ public class ProductService : IProductService
 
     if (existingEan)
     {
-        return ProductOperationResult.Fail(
+        return OperationResult<ProductResponseDto>.Fail(
             "Product with this EAN already exists.",
             StatusCodes.Status409Conflict);
     }
@@ -122,7 +123,7 @@ public class ProductService : IProductService
 
     if (!categoryExists)
     {
-        return ProductOperationResult.Fail(
+        return OperationResult<ProductResponseDto>.Fail(
             $"Category with id {dto.CategoryId} does not exist.",
             StatusCodes.Status404NotFound);
     }
@@ -132,7 +133,7 @@ public class ProductService : IProductService
 
     if (!brandExists)
     {
-        return ProductOperationResult.Fail(
+        return OperationResult<ProductResponseDto>.Fail(
             $"Brand with id {dto.BrandId} does not exist.",
             StatusCodes.Status404NotFound);
     }
@@ -144,7 +145,7 @@ public class ProductService : IProductService
 
         if (!locationExists)
         {
-            return ProductOperationResult.Fail(
+            return OperationResult<ProductResponseDto>.Fail(
                 $"Location with id {location.LocationId} does not exist.",
                 StatusCodes.Status404NotFound);
         }
@@ -195,14 +196,14 @@ public class ProductService : IProductService
 
     var quantity = locations.Sum(x => x.Quantity);
 
-    return ProductOperationResult.Ok(
+    return OperationResult<ProductResponseDto>.Ok(
         MapToDto(
             createdProduct,
             quantity,
             locations));
 }
 
-    public async Task<ProductOperationResult> UpdateAsync(
+    public async Task<OperationResult<ProductResponseDto>> UpdateAsync(
     int id,
     ProductDto dto)
 {
@@ -211,7 +212,7 @@ public class ProductService : IProductService
 
     if (product is null)
     {
-        return ProductOperationResult.Fail(
+        return OperationResult<ProductResponseDto>.Fail(
             "Product does not exist.",
             StatusCodes.Status404NotFound);
     }
@@ -221,7 +222,7 @@ public class ProductService : IProductService
 
     if (!categoryExists)
     {
-        return ProductOperationResult.Fail(
+        return OperationResult<ProductResponseDto>.Fail(
             $"Category with id {dto.CategoryId} does not exist.",
             StatusCodes.Status404NotFound);
     }
@@ -231,7 +232,7 @@ public class ProductService : IProductService
 
     if (!brandExists)
     {
-        return ProductOperationResult.Fail(
+        return OperationResult<ProductResponseDto>.Fail(
             $"Brand with id {dto.BrandId} does not exist.",
             StatusCodes.Status404NotFound);
     }
@@ -241,7 +242,7 @@ public class ProductService : IProductService
 
     if (existingProduct)
     {
-        return ProductOperationResult.Fail(
+        return OperationResult<ProductResponseDto>.Fail(
             "Product with this name already exists.",
             StatusCodes.Status409Conflict);
     }
@@ -251,7 +252,7 @@ public class ProductService : IProductService
 
     if (existingEan)
     {
-        return ProductOperationResult.Fail(
+        return OperationResult<ProductResponseDto>.Fail(
             "Product with this EAN already exists.",
             StatusCodes.Status409Conflict);
     }
@@ -264,7 +265,7 @@ public class ProductService : IProductService
 
         if (!locationExists)
         {
-            return ProductOperationResult.Fail(
+            return OperationResult<ProductResponseDto>.Fail(
                 $"Location with id {location.LocationId} does not exist.",
                 StatusCodes.Status404NotFound);
         }
@@ -317,29 +318,29 @@ public class ProductService : IProductService
 
     var quantity = locations.Sum(x => x.Quantity);
 
-    return ProductOperationResult.Ok(
+    return OperationResult<ProductResponseDto>.Ok(
         MapToDto(
             updatedProduct,
             quantity,
             locations));
 }
 
-    public async Task<ProductOperationResult> DeleteAsync(int id)
+    public async Task<OperationResult> DeleteAsync(int id)
     {
         var product = await _context.Products
             .FirstOrDefaultAsync(x => x.Id == id);
 
         if (product is null)
-            return ProductOperationResult.Fail("Product not found.", StatusCodes.Status404NotFound);
+            return OperationResult.Fail("Product not found.", StatusCodes.Status404NotFound);
 
         var ordered = await _context.OrderItems.AnyAsync(x => x.ProductId == id);
 
         if (ordered)
-            return ProductOperationResult.Fail("Cannot delete product because it is ordered.", StatusCodes.Status409Conflict);
+            return OperationResult.Fail("Cannot delete product because it is ordered.", StatusCodes.Status409Conflict);
 
         _context.Products.Remove(product);
         await _context.SaveChangesAsync();
 
-        return ProductOperationResult.Ok();
+        return OperationResult.Ok();
     }
 }
